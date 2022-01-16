@@ -235,20 +235,19 @@ class Map:
 
 
 def generate_dungeon(filename, xsize, ysize, fail, b1, mrooms):
-    map_list = []
+    file = open(filename, mode='w')
     main_map = Map()
-    main_map.make_map(xsize, ysize, 110, 50, 60)
+    main_map.make_map(xsize, ysize, fail, b1, mrooms)
     for y in range(ysize):
         line = ""
         for x in range(xsize):
             if main_map.map_array[y][x] == 0:
-                line += "."
+                line += ":"
             if main_map.map_array[y][x] == 1:
                 line += " "
             if main_map.map_array[y][x] == 2:
                 line += "#"
             if main_map.map_array[y][x] == 3 or main_map.map_array[y][x] == 4 or main_map.map_array[y][x] == 5:
                 line += "="
-        map_list.append(line)
-    file = open(filename, mode='w')
-    file.writelines(map_list)
+        file.write(line + '\n')
+    file.close()
