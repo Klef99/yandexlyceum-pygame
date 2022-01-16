@@ -3,7 +3,7 @@ import sys
 
 import pygame
 from procgen import generate_dungeon
-
+from random import randint
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('Assets/frames/', name)
@@ -30,7 +30,9 @@ def load_level(filename):
 
 tile_images = {
     'wall': load_image('wall_corner_front_left.png'),
-    'empty': load_image('floor_1.png')
+    'empty': {1: load_image('floor_1.png'), 2: load_image('floor_2.png'), 3: load_image('floor_3.png'),
+              4: load_image('floor_4.png'), 5: load_image('floor_5.png'), 6: load_image('floor_6.png'),
+              7: load_image('floor_7.png'), 8: load_image('floor_8.png')}
 }
 
 tile_width = tile_height = 16
@@ -44,9 +46,9 @@ player_group = pygame.sprite.Group()
 
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_type, pos_x, pos_y):
+    def __init__(self, tile, pos_x, pos_y):
         super().__init__(tiles_group, all_sprites)
-        self.image = tile_images[tile_type]
+        self.image = tile
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
 
@@ -56,11 +58,11 @@ def generate_level(level):
     for y in range(len(level)):
         for x in range(len(level[y])):
             if level[y][x] == ':' or level[y][x] == '=':
-                Tile('empty', x, y)
+                Tile(tile_images['empty'][randint(1, 8)], x, y)
             elif level[y][x] == '#' or level[y][x] == '.':
-                Tile('wall', x, y)
+                Tile(tile_images['wall'], x, y)
             elif level[y][x] == '@':
-                Tile('empty', x, y)
+                Tile(tile_images['empty'][randint(1, 8)], x, y)
                 new_player = Player(x, y)
             elif level[y][x] == ' ':
                 continue
