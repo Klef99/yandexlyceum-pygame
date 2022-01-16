@@ -5,6 +5,7 @@ import pygame
 from procgen import generate_dungeon
 from random import randint
 
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('Assets/frames/', name)
     # если файл не существует, то выходим
@@ -38,7 +39,7 @@ tile_images = {
 tile_width = tile_height = 16
 # основной персонаж
 player = None
-player_image = load_image('big_demon_idle_anim_f0.png')
+player_image = load_image('knight_m_run_anim_f0.png')
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
@@ -140,14 +141,26 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
-                if event.key == ord('a'):
-                    pass
+                if event.key == pygame.K_a:
+                    player.rect.x -= 10
+                if event.key == pygame.K_w:
+                    player.rect.y -= 10
+                if event.key == pygame.K_s:
+                    player.rect.y += 10
+                if event.key == pygame.K_d:
+                    player.rect.x += 10
                 if event.key == pygame.K_UP:
                     player.get_health(200)
                 if event.key == pygame.K_DOWN:
                     player.get_damage(200)
         screen.fill((0, 0, 0))
+
         all_sprites.draw(screen)
+        tiles_group.draw(screen)
+        player_group.draw(screen)
         all_sprites.update()
+        tiles_group.update()
+        player_group.update()
+
         pygame.display.flip()
     pygame.quit()
