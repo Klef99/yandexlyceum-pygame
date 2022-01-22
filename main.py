@@ -136,6 +136,8 @@ if __name__ == '__main__':
     running = True
     fps = 60
     clock = pygame.time.Clock()
+    pygame.mixer.music.load('Assets/Sounds/music_on_the_background.mp3')
+    pygame.mixer.music.play(-1)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -151,8 +153,13 @@ if __name__ == '__main__':
                     player.rect.x += 10
                 if event.key == pygame.K_UP:
                     player.get_health(200)
+                    pygame.mixer.music.load('Assets/Sounds/Health_player.mp3')
+                    pygame.mixer.music.play()
                 if event.key == pygame.K_DOWN:
                     player.get_damage(200)
+                    pygame.mixer.music.load('Assets/Sounds/Damage_player.mp3')
+                    pygame.mixer.music.play()
+
         screen.fill((0, 0, 0))
 
         all_sprites.draw(screen)
