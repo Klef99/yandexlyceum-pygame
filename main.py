@@ -75,9 +75,11 @@ def generate_level(level):
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
         self.image = player_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 15, tile_height * pos_y + 5)
+            tile_width * pos_x, tile_height * pos_y - 10)
         self.healt_init()
 
     def healt_init(self):
@@ -125,12 +127,58 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(screen, transition_color, transition_bar)
         pygame.draw.rect(screen, (255, 255, 255), (5, 10, self.health_bar_length, 15), 4)
 
+    def can_player_move(self, key, lvl):
+        x, y = self.pos_x, self.pos_y
+        print(lvl)
+        if key == pygame.K_a:
+            if x > 0:
+                lvl_change = [i for i in lvl[y]]
+                if lvl_change[x - 1] != '#':
+                    lvl_change[x] = ':'
+                    lvl_change[x - 1] = '@'
+                    lvl[y] = ''.join(lvl_change)
+                    self.pos_x, self.pos_y = x - 1, y
+                    self.rect.x -= 16
+        elif key == pygame.K_d:
+            if x < len(lvl[0]) - 2:
+                lvl_change = [i for i in lvl[y]]
+                if lvl_change[x + 1] != '#':
+                    lvl_change[x] = ':'
+                    lvl_change[x + 1] = '@'
+                    lvl[y] = ''.join(lvl_change)
+                    self.pos_x, self.pos_y = x + 1, y
+                    self.rect.x += 16
+        elif key == pygame.K_w:
+            if y > 0:
+                lvl_change2 = [i for i in lvl[y - 1]]
+                lvl_change1 = [i for i in lvl[y]]
+                if lvl_change2[x] != '#':
+                    lvl_change1[x] = ':'
+                    lvl_change2[x] = '@'
+                    lvl[y] = ''.join(lvl_change1)
+                    lvl[y - 1] = ''.join(lvl_change2)
+                    self.pos_x, self.pos_y = x, y - 1
+                    self.rect.y -= 16
+        elif key == pygame.K_s:
+            if y < len(lvl) - 2:
+                lvl_change2 = [i for i in lvl[y + 1]]
+                lvl_change1 = [i for i in lvl[y]]
+                if lvl_change2[x] != '#':
+                    lvl_change1[x] = ':'
+                    lvl_change2[x] = '@'
+                    lvl[y] = ''.join(lvl_change1)
+                    lvl[y + 1] = ''.join(lvl_change2)
+                    self.pos_x, self.pos_y = x, y + 1
+                    self.rect.y += 16
+
 
 if __name__ == '__main__':
     pygame.init()
     pygame.display.set_caption('Deep Dark Dungeon (DDD)')
     generate_dungeon('map.txt', 70, 40, 110, 50, 60)
-    player, level_x, level_y = generate_level(load_level('example_map.txt'))
+    level = load_level('example_map.txt')
+    print(level)
+    player, level_x, level_y = generate_level(level)
     size = width, height = level_x * tile_width, level_y * tile_height
     screen = pygame.display.set_mode(size)
     running = True
@@ -144,13 +192,13 @@ if __name__ == '__main__':
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
-                    player.rect.x -= 10
+                    player.can_player_move(pygame.K_a, level)
                 if event.key == pygame.K_w:
-                    player.rect.y -= 10
+                    player.can_player_move(pygame.K_w, level)
                 if event.key == pygame.K_s:
-                    player.rect.y += 10
+                    player.can_player_move(pygame.K_s, level)
                 if event.key == pygame.K_d:
-                    player.rect.x += 10
+                    player.can_player_move(pygame.K_d, level)
                 if event.key == pygame.K_UP:
                     player.get_health(200)
                     pygame.mixer.music.load('Assets/Sounds/Health_player.mp3')
