@@ -2,7 +2,7 @@ import os
 import sys
 
 import pygame
-from procgen import generate_dungeon
+#from procgen import generate_dungeon
 from random import randint
 
 
@@ -30,8 +30,9 @@ def load_level(filename):
 
 
 tile_images = {
-    'wall': load_image('wall_corner_front_left.png'),
-    'empty': {1: load_image('floor_1.png'), 2: load_image('floor_2.png'), 3: load_image('floor_3.png'),
+    'wall': {1:load_image('wall_left.png'), 2: load_image('wall_right.png'), 3: load_image('wall_mid.png'),
+             4: load_image('wall_inner_corner_l_top_rigth.png'), 5: load_image('wall_inner_corner_l_top_left.png')},
+    'floors': {1: load_image('floor_1.png'), 2: load_image('floor_2.png'), 3: load_image('floor_3.png'),
               4: load_image('floor_4.png'), 5: load_image('floor_5.png'), 6: load_image('floor_6.png'),
               7: load_image('floor_7.png'), 8: load_image('floor_8.png')}
 }
@@ -39,11 +40,21 @@ tile_images = {
 tile_width = tile_height = 16
 # основной персонаж
 player = None
+chests = []
+enemies = []
+doors = []
 player_image = load_image('knight_m_run_anim_f0.png')
+enemy_image = load_image('big_demon_idle_anim_f0.png')
+chest_image = load_image('chest_empty_open_anim_f0.png')
+door_image = load_image('doors_all.png')
+
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
+enemy_group = pygame.sprite.Group()
+chest_group = pygame.sprite.Group()
+door_group = pygame.sprite.Group()
 
 
 class Tile(pygame.sprite.Sprite):
@@ -58,18 +69,63 @@ def generate_level(level):
     new_player, x, y = None, None, None
     for y in range(len(level)):
         for x in range(len(level[y])):
-            if level[y][x] == ':' or level[y][x] == '=':
-                Tile(tile_images['empty'][randint(1, 8)], x, y)
-            elif level[y][x] == '#' or level[y][x] == '.':
-                Tile(tile_images['wall'], x, y)
+            if level[y][x] == ':':
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
+            elif level[y][x] == '#':
+                Tile(tile_images['wall'][3], x, y)
+            elif level[y][x] == 'L':
+                Tile(tile_images['wall'][1], x, y)
+            elif level[y][x] == 'R':
+                Tile(tile_images['wall'][2], x, y)
+            elif level[y][x] == '+':
+                Tile(tile_images['wall'][4], x, y)
+            elif level[y][x] == '-':
+                Tile(tile_images['wall'][5], x, y)
             elif level[y][x] == '@':
-                Tile(tile_images['empty'][randint(1, 8)], x, y)
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
                 new_player = Player(x, y)
-            elif level[y][x] == ' ':
-                continue
+            elif level[y][x] == '!':
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
+                enemies.append(Enemy(x, y))
+            elif level[y][x] == '?':
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
+                chests.append(Chest(x, y))
+            elif level[y][x] == '=':
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
+                doors.append(Door(x, y))
         print(level[y])
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
+
+
+class Chest(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(chest_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = chest_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y - 2)
+
+
+class Door(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(door_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = door_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x - 10, tile_height * pos_y - 5)
+
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(enemy_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = enemy_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y - 10)
 
 
 class Player(pygame.sprite.Sprite):
@@ -133,7 +189,7 @@ class Player(pygame.sprite.Sprite):
         if key == pygame.K_a:
             if x > 0:
                 lvl_change = [i for i in lvl[y]]
-                if lvl_change[x - 1] != '#':
+                if lvl_change[x - 1] != '#' and lvl_change[x - 1] != '?':
                     lvl_change[x] = ':'
                     lvl_change[x - 1] = '@'
                     lvl[y] = ''.join(lvl_change)
@@ -142,7 +198,7 @@ class Player(pygame.sprite.Sprite):
         elif key == pygame.K_d:
             if x < len(lvl[0]) - 2:
                 lvl_change = [i for i in lvl[y]]
-                if lvl_change[x + 1] != '#':
+                if lvl_change[x + 1] != '#' and lvl_change[x + 1] != '?':
                     lvl_change[x] = ':'
                     lvl_change[x + 1] = '@'
                     lvl[y] = ''.join(lvl_change)
@@ -152,7 +208,7 @@ class Player(pygame.sprite.Sprite):
             if y > 0:
                 lvl_change2 = [i for i in lvl[y - 1]]
                 lvl_change1 = [i for i in lvl[y]]
-                if lvl_change2[x] != '#':
+                if lvl_change2[x] != '#' and lvl_change2[x] != '?':
                     lvl_change1[x] = ':'
                     lvl_change2[x] = '@'
                     lvl[y] = ''.join(lvl_change1)
@@ -163,7 +219,7 @@ class Player(pygame.sprite.Sprite):
             if y < len(lvl) - 2:
                 lvl_change2 = [i for i in lvl[y + 1]]
                 lvl_change1 = [i for i in lvl[y]]
-                if lvl_change2[x] != '#':
+                if lvl_change2[x] != '#' and lvl_change2[x] != '?':
                     lvl_change1[x] = ':'
                     lvl_change2[x] = '@'
                     lvl[y] = ''.join(lvl_change1)
@@ -175,12 +231,15 @@ class Player(pygame.sprite.Sprite):
 if __name__ == '__main__':
     pygame.init()
     pygame.display.set_caption('Deep Dark Dungeon (DDD)')
-    generate_dungeon('map.txt', 70, 40, 110, 50, 60)
-    level = load_level('example_map.txt')
+    #generate_dungeon('map.txt', 70, 40, 110, 50, 60)
+    level = load_level('example_map2.txt')
     print(level)
     player, level_x, level_y = generate_level(level)
     size = width, height = level_x * tile_width, level_y * tile_height
     screen = pygame.display.set_mode(size)
+    print(enemies)
+    print(chests)
+    print(doors)
     running = True
     fps = 60
     clock = pygame.time.Clock()
@@ -213,9 +272,16 @@ if __name__ == '__main__':
         all_sprites.draw(screen)
         tiles_group.draw(screen)
         player_group.draw(screen)
+        enemy_group.draw(screen)
+        chest_group.draw(screen)
+        door_group.draw(screen)
+
         all_sprites.update()
         tiles_group.update()
         player_group.update()
+        door_group.update()
+        chest_group.update()
+        enemy_group.update()
 
         pygame.display.flip()
     pygame.quit()
