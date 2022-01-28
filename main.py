@@ -42,19 +42,29 @@ player = None
 chests = []
 enemies = []
 doors = []
-walls_top_right = []
-walls_top_left = []
+walls_inner_top_right = []
+walls_inner_top_left = []
 walls_side_mid_left = []
 walls_side_mid_right = []
+walls_corner_left = []
+walls_corner_right = []
+walls_top_left = []
+walls_top_right = []
+walls_top_mid = []
 
 player_image = load_image('knight_m_run_anim_f0.png')
 enemy_image = load_image('big_demon_idle_anim_f0.png')
 chest_image = load_image('chest_empty_open_anim_f0.png')
 door_image = load_image('doors_all.png')
-wall_top_right_image = load_image('wall_inner_corner_l_top_rigth.png')
-wall_top_left_image = load_image('wall_inner_corner_l_top_left.png')
+wall_inner_top_right_image = load_image('wall_inner_corner_l_top_rigth.png')
+wall_inner_top_left_image = load_image('wall_inner_corner_l_top_left.png')
 wall_side_mid_left_image = load_image('wall_side_mid_right.png')
 wall_side_mid_right_image = load_image('wall_side_mid_left.png')
+wall_corner_left_image = load_image('wall_corner_left.png')
+wall_corner_right_image = load_image('wall_corner_right.png')
+wall_top_left_image = load_image('wall_top_left.png')
+wall_top_right_image = load_image('wall_top_right.png')
+wall_top_mid_image = load_image('wall_top_mid.png')
 
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
@@ -63,10 +73,15 @@ player_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 chest_group = pygame.sprite.Group()
 door_group = pygame.sprite.Group()
-wall_top_right_group = pygame.sprite.Group()
-wall_top_left_group = pygame.sprite.Group()
+wall_inner_top_right_group = pygame.sprite.Group()
+wall_inner_top_left_group = pygame.sprite.Group()
 wall_side_mid_left_group = pygame.sprite.Group()
 wall_side_mid_right_group = pygame.sprite.Group()
+wall_corner_left_group = pygame.sprite.Group()
+wall_corner_right_group = pygame.sprite.Group()
+wall_top_left_group = pygame.sprite.Group()
+wall_top_right_group = pygame.sprite.Group()
+wall_top_mid_group = pygame.sprite.Group()
 
 
 class Tile(pygame.sprite.Sprite):
@@ -91,16 +106,28 @@ def generate_level(level):
                 Tile(tile_images['wall'][2], x, y)
             elif level[y][x] == '+':
                 Tile(tile_images['floors'][randint(1, 8)], x, y)
-                walls_top_right.append(Wall_top_right(x, y))
+                walls_inner_top_right.append(Wall_inner_top_right(x, y))
             elif level[y][x] == '-':
                 Tile(tile_images['floors'][randint(1, 8)], x, y)
+                walls_inner_top_left.append(Wall_inner_top_left(x, y))
+            elif level[y][x] == "'":
                 walls_top_left.append(Wall_top_left(x, y))
+            elif level[y][x] == '"':
+                walls_top_left.append(Wall_top_right(x, y))
+            elif level[y][x] == '0':
+                walls_top_left.append(Wall_top_mid(x, y))
             elif level[y][x] == '*':
                 Tile(tile_images['floors'][randint(1, 8)], x, y)
                 walls_side_mid_left.append(Wall_side_mid_left(x, y))
             elif level[y][x] == '/':
                 Tile(tile_images['floors'][randint(1, 8)], x, y)
                 walls_side_mid_right.append(Wall_side_mid_right(x, y))
+            elif level[y][x] == '>':
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
+                walls_corner_left.append(Wall_corner_left(x, y))
+            elif level[y][x] == '<':
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
+                walls_corner_right.append(Wall_corner_right(x, y))
             elif level[y][x] == '@':
                 Tile(tile_images['floors'][randint(1, 8)], x, y)
                 new_player = Player(x, y)
@@ -128,6 +155,26 @@ class Chest(pygame.sprite.Sprite):
             tile_width * pos_x, tile_height * pos_y - 2)
 
 
+class Wall_top_left(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(wall_top_left_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = wall_top_left_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
+class Wall_top_mid(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(wall_top_mid_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = wall_top_mid_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
 class Wall_top_right(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(wall_top_right_group, all_sprites)
@@ -138,12 +185,42 @@ class Wall_top_right(pygame.sprite.Sprite):
             tile_width * pos_x, tile_height * pos_y)
 
 
-class Wall_top_left(pygame.sprite.Sprite):
+class Wall_corner_left(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
-        super().__init__(wall_top_left_group, all_sprites)
+        super().__init__(wall_corner_left_group, all_sprites)
         self.pos_x = pos_x
         self.pos_y = pos_y
-        self.image = wall_top_left_image
+        self.image = wall_corner_left_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
+class Wall_corner_right(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(wall_corner_right_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = wall_corner_right_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
+class Wall_inner_top_right(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(wall_inner_top_right_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = wall_inner_top_right_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
+class Wall_inner_top_left(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(wall_inner_top_left_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = wall_inner_top_left_image
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
 
@@ -293,13 +370,9 @@ if __name__ == '__main__':
     pygame.display.set_caption('Deep Dark Dungeon (DDD)')
     #generate_dungeon('map.txt', 70, 40, 110, 50, 60)
     level = load_level('example_map2.txt')
-    print(level)
     player, level_x, level_y = generate_level(level)
     size = width, height = level_x * tile_width, level_y * tile_height
     screen = pygame.display.set_mode(size)
-    print(enemies)
-    print(chests)
-    print(doors)
     running = True
     fps = 60
     clock = pygame.time.Clock()
@@ -334,22 +407,32 @@ if __name__ == '__main__':
         player_group.draw(screen)
         enemy_group.draw(screen)
         chest_group.draw(screen)
-        door_group.draw(screen)
-        wall_top_right_group.draw(screen)
-        wall_top_left_group.draw(screen)
+        #door_group.draw(screen)
+        wall_inner_top_right_group.draw(screen)
+        wall_inner_top_left_group.draw(screen)
         wall_side_mid_left_group.draw(screen)
         wall_side_mid_right_group.draw(screen)
+        wall_corner_left_group.draw(screen)
+        wall_corner_right_group.draw(screen)
+        wall_top_left_group.draw(screen)
+        wall_top_right_group.draw(screen)
+        wall_top_mid_group.draw(screen)
 
         all_sprites.update()
         tiles_group.update()
         player_group.update()
-        door_group.update()
+        #door_group.update()
         chest_group.update()
         enemy_group.update()
-        wall_top_right_group.update()
-        wall_top_left_group.update()
+        wall_inner_top_right_group.update()
+        wall_inner_top_left_group.update()
         wall_side_mid_left_group.update()
         wall_side_mid_right_group.update()
+        wall_corner_left_group.update()
+        wall_corner_right_group.update()
+        wall_top_left_group.update()
+        wall_top_right_group.update()
+        wall_top_mid_group.update()
 
         pygame.display.flip()
     pygame.quit()
