@@ -2,7 +2,7 @@ import os
 import sys
 
 import pygame
-#from procgen import generate_dungeon
+from procgen import generate_dungeon
 from random import randint
 
 
@@ -39,84 +39,68 @@ tile_images = {
 tile_width = tile_height = 16
 # основной персонаж
 player = None
-
 chests = []
-
 enemies = []
-
 doors = []
-
 walls_inner_top_right = []
 walls_inner_top_left = []
-
 walls_side_mid_left = []
 walls_side_mid_right = []
-
 walls_corner_left = []
 walls_corner_right = []
-
 walls_top_left = []
 walls_top_right = []
 walls_top_mid = []
-
+walls_side_front_left = []
+walls_side_front_right = []
+walls_side_top_left = []
+walls_side_top_right = []
 walls_inner_top_left_out = []
-
 walls_top_mid_in = []
 
+
 player_image = load_image('knight_m_run_anim_f0.png')
-
 enemy_image = load_image('big_demon_idle_anim_f0.png')
-
 chest_image = load_image('chest_empty_open_anim_f0.png')
-
-door_image = load_image('doors_all.png')
-
+door_image = load_image('doors_all2.png')
 wall_inner_top_right_image = load_image('wall_inner_corner_l_top_rigth.png')
 wall_inner_top_left_image = load_image('wall_inner_corner_l_top_left.png')
-
 wall_side_mid_left_image = load_image('wall_side_mid_right.png')
 wall_side_mid_right_image = load_image('wall_side_mid_left.png')
-
 wall_corner_left_image = load_image('wall_corner_left.png')
 wall_corner_right_image = load_image('wall_corner_right.png')
-
 wall_top_left_image = load_image('wall_top_left.png')
 wall_top_right_image = load_image('wall_top_right.png')
 wall_top_mid_image = load_image('wall_top_mid.png')
-
 wall_inner_top_left_out_image = load_image('wall_inner_corner_l_top_left.png')
-
 wall_top_mid_in_image = load_image('wall_top_mid.png')
+wall_side_front_left_image = load_image('wall_side_front_left.png')
+wall_side_front_right_image = load_image('wall_side_front_right.png')
+wall_side_top_left_image = load_image('wall_side_top_left.png')
+wall_side_top_right_image = load_image('wall_side_top_right.png')
 
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
-
 tiles_group = pygame.sprite.Group()
-
 player_group = pygame.sprite.Group()
-
 enemy_group = pygame.sprite.Group()
-
 chest_group = pygame.sprite.Group()
-
 door_group = pygame.sprite.Group()
-
 wall_inner_top_right_group = pygame.sprite.Group()
 wall_inner_top_left_group = pygame.sprite.Group()
-
 wall_side_mid_left_group = pygame.sprite.Group()
 wall_side_mid_right_group = pygame.sprite.Group()
-
 wall_corner_left_group = pygame.sprite.Group()
 wall_corner_right_group = pygame.sprite.Group()
-
 wall_top_left_group = pygame.sprite.Group()
 wall_top_right_group = pygame.sprite.Group()
 wall_top_mid_group = pygame.sprite.Group()
-
 wall_inner_top_left_out_group = pygame.sprite.Group()
-
 wall_top_mid_in_group = pygame.sprite.Group()
+wall_side_front_left_group = pygame.sprite.Group()
+wall_side_front_right_group = pygame.sprite.Group()
+wall_side_top_left_group = pygame.sprite.Group()
+wall_side_top_right_group = pygame.sprite.Group()
 
 
 class Tile(pygame.sprite.Sprite):
@@ -166,6 +150,15 @@ def generate_level(level):
             elif level[y][x] == '<':
                 Tile(tile_images['floors'][randint(1, 8)], x, y)
                 walls_corner_right.append(Wall_corner_right(x, y))
+            elif level[y][x] == '<':
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
+                walls_corner_right.append(Wall_corner_right(x, y))
+            elif level[y][x] == '[':
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
+                walls_side_front_left.append(Wall_side_front_left(x, y))
+            elif level[y][x] == ']':
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
+                walls_side_front_right.append(Wall_side_front_right(x, y))
             elif level[y][x] == '}':
                 walls_inner_top_left_out.append(Wall_inner_top_left_out(x, y))
             elif level[y][x] == '@':
@@ -180,6 +173,12 @@ def generate_level(level):
             elif level[y][x] == '=':
                 Tile(tile_images['floors'][randint(1, 8)], x, y)
                 doors.append(Door(x, y))
+            elif level[y][x] == '(':
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
+                walls_side_top_left.append(Wall_side_top_left(x, y))
+            elif level[y][x] == ')':
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
+                walls_side_top_right.append(Wall_side_top_right(x, y))
         print(level[y])
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
@@ -195,12 +194,52 @@ class Chest(pygame.sprite.Sprite):
             tile_width * pos_x, tile_height * pos_y - 2)
 
 
+class Wall_side_top_left(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(wall_side_top_left_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = wall_side_top_left_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
+class Wall_side_top_right(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(wall_side_top_right_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = wall_side_top_right_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
 class Wall_top_mid_in(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(wall_top_mid_in_group, all_sprites)
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.image = wall_top_mid_in_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
+class Wall_side_front_left(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(wall_side_front_left_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = wall_side_front_left_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
+class Wall_side_front_right(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(wall_side_front_right_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = wall_side_front_right_image
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
 
@@ -312,7 +351,7 @@ class Door(pygame.sprite.Sprite):
         self.pos_y = pos_y
         self.image = door_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x - 10, tile_height * pos_y - 5)
+            tile_width * pos_x - 25, tile_height * pos_y - 19)
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -322,7 +361,7 @@ class Enemy(pygame.sprite.Sprite):
         self.pos_y = pos_y
         self.image = enemy_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y - 10)
+            tile_width * pos_x, tile_height * pos_y - 20)
 
 
 class Player(pygame.sprite.Sprite):
@@ -332,7 +371,7 @@ class Player(pygame.sprite.Sprite):
         self.pos_y = pos_y
         self.image = player_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y - 10)
+            tile_width * pos_x, tile_height * pos_y)
         self.healt_init()
 
     def healt_init(self):
@@ -428,7 +467,7 @@ class Player(pygame.sprite.Sprite):
 if __name__ == '__main__':
     pygame.init()
     pygame.display.set_caption('Deep Dark Dungeon (DDD)')
-    #generate_dungeon('map.txt', 70, 40, 110, 50, 60)
+    generate_dungeon('map.txt', 70, 40, 110, 50, 60)
     level = load_level('example_map2.txt')
     player, level_x, level_y = generate_level(level)
     size = width, height = level_x * tile_width, level_y * tile_height
@@ -467,7 +506,7 @@ if __name__ == '__main__':
         player_group.draw(screen)
         enemy_group.draw(screen)
         chest_group.draw(screen)
-        #door_group.draw(screen)
+        door_group.draw(screen)
         wall_inner_top_right_group.draw(screen)
         wall_inner_top_left_group.draw(screen)
         wall_side_mid_left_group.draw(screen)
@@ -479,12 +518,16 @@ if __name__ == '__main__':
         wall_top_mid_group.draw(screen)
         wall_inner_top_left_out_group.draw(screen)
         wall_top_mid_in_group.draw(screen)
+        wall_side_front_left_group.draw(screen)
+        wall_side_front_right_group.draw(screen)
+        wall_side_top_left_group.draw(screen)
+        wall_side_top_right_group.draw(screen)
 
 
         all_sprites.update()
         tiles_group.update()
         player_group.update()
-        #door_group.update()
+        door_group.update()
         chest_group.update()
         enemy_group.update()
         wall_inner_top_right_group.update()
@@ -498,6 +541,10 @@ if __name__ == '__main__':
         wall_top_mid_group.update()
         wall_inner_top_left_out_group.update()
         wall_top_mid_in_group.update()
+        wall_side_front_left_group.update()
+        wall_side_front_right_group.update()
+        wall_side_top_left_group.update()
+        wall_side_top_right_group.update()
 
         pygame.display.flip()
     pygame.quit()
