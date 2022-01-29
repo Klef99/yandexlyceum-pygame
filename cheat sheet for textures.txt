@@ -1,0 +1,19 @@
+'_' = empty
+':' = floor
+'@' = player
+'!' = enemy
+'=' = door
+'L' = wall left
+'R' = wall right
+'#' = wall mid
+'0' = wall top mid out dungeon
+''' = wall top left out dungeon
+'"' = wall top right out dungeon
+'>' = wall corner left
+'<' = wall corner right
+'*' = wall side mid left
+'/' = wall side mid right
+'1' = wall top mid in dungeon
+'?' = chest
+'+' = wall inner top right
+'-' = wall inner top left
