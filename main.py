@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 import pygame
 from procgen import generate_dungeon
@@ -30,10 +31,50 @@ def load_level(filename):
 
 
 tile_images = {
-    'wall': {1:load_image('wall_left.png'), 2: load_image('wall_right.png'), 3: load_image('wall_mid.png')},
+    'wall': {1: load_image('wall_left.png'), 2: load_image('wall_right.png'), 3: load_image('wall_mid.png')},
     'floors': {1: load_image('floor_1.png'), 2: load_image('floor_2.png'), 3: load_image('floor_3.png'),
               4: load_image('floor_4.png'), 5: load_image('floor_5.png'), 6: load_image('floor_6.png'),
               7: load_image('floor_7.png'), 8: load_image('floor_8.png')}
+}
+
+
+walls_textures = {'wall': {1: load_image('wall_left.png'), 2: load_image('wall_right.png'),
+                           3: load_image('wall_mid.png')}}
+
+
+lava_fountains_anims = {
+    1: load_image('wall_fountain_mid_red_anim_f0.png'),
+    2: load_image('wall_fountain_mid_red_anim_f1.png'),
+    3: load_image('wall_fountain_mid_red_anim_f2.png')
+}
+
+
+lava_fountains_bottom_anims = {
+    1: load_image('wall_fountain_basin_red_anim_f0.png'),
+    2: load_image('wall_fountain_basin_red_anim_f1.png'),
+    3: load_image('wall_fountain_basin_red_anim_f2.png')
+}
+
+
+player_anims = {
+    'right': {1: load_image('knight_m_run_r_anim_f0.png'), 2: load_image('knight_m_run_r_anim_f1.png'),
+              3: load_image('knight_m_run_r_anim_f2.png'), 4: load_image('knight_m_run_r_anim_f3.png')},
+    'left': {1: load_image('knight_m_run_l_anim_f0.png'), 2: load_image('knight_m_run_l_anim_f1.png'),
+             3: load_image('knight_m_run_l_anim_f2.png'), 4: load_image('knight_m_run_l_anim_f3.png')},
+    'up': {1: load_image('knight_m_run_r_anim_f0.png'), 2: load_image('knight_m_run_r_anim_f1.png'),
+           3: load_image('knight_m_run_r_anim_f2.png'), 4: load_image('knight_m_run_r_anim_f3.png')},
+    'down': {1: load_image('knight_m_run_r_anim_f0.png'), 2: load_image('knight_m_run_r_anim_f1.png'),
+             3: load_image('knight_m_run_r_anim_f2.png'), 4: load_image('knight_m_run_r_anim_f3.png')},
+    'up_right': {1: load_image('knight_m_run_r_anim_f0.png'), 2: load_image('knight_m_run_r_anim_f1.png'),
+                 3: load_image('knight_m_run_r_anim_f2.png'), 4: load_image('knight_m_run_r_anim_f3.png')},
+    'right_down': {1: load_image('knight_m_run_r_anim_f0.png'), 2: load_image('knight_m_run_r_anim_f1.png'),
+                   3: load_image('knight_m_run_r_anim_f2.png'), 4: load_image('knight_m_run_r_anim_f3.png')},
+    'left_down': {1: load_image('knight_m_run_l_anim_f0.png'), 2: load_image('knight_m_run_l_anim_f1.png'),
+                  3: load_image('knight_m_run_l_anim_f2.png'), 4: load_image('knight_m_run_l_anim_f3.png')},
+    'up_left': {1: load_image('knight_m_run_l_anim_f0.png'), 2: load_image('knight_m_run_l_anim_f1.png'),
+                3: load_image('knight_m_run_l_anim_f2.png'), 4: load_image('knight_m_run_l_anim_f3.png')},
+    'stay_on_place': {1: load_image('knight_m_idle_anim_f0.png'), 2: load_image('knight_m_idle_anim_f1.png'),
+                      3: load_image('knight_m_idle_anim_f2.png'), 4: load_image('knight_m_idle_anim_f3.png')}
 }
 
 tile_width = tile_height = 16
@@ -57,12 +98,15 @@ walls_side_top_left = []
 walls_side_top_right = []
 walls_inner_top_left_out = []
 walls_top_mid_in = []
+lava_fountains_mid = []
+lava_fountains_bottom = []
+lava_fountains_top = []
 
 
-player_image = load_image('knight_m_run_anim_f0.png')
+player_image = load_image('knight_m_run_r_anim_f0.png')
 enemy_image = load_image('big_demon_idle_anim_f0.png')
 chest_image = load_image('chest_empty_open_anim_f0.png')
-door_image = load_image('doors_all2.png')
+door_image = load_image('doors_all3.png')
 wall_inner_top_right_image = load_image('wall_inner_corner_l_top_rigth.png')
 wall_inner_top_left_image = load_image('wall_inner_corner_l_top_left.png')
 wall_side_mid_left_image = load_image('wall_side_mid_right.png')
@@ -78,6 +122,7 @@ wall_side_front_left_image = load_image('wall_side_front_left.png')
 wall_side_front_right_image = load_image('wall_side_front_right.png')
 wall_side_top_left_image = load_image('wall_side_top_left.png')
 wall_side_top_right_image = load_image('wall_side_top_right.png')
+lava_fountain_top_image = load_image('wall_fountain_top.png')
 
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
@@ -86,6 +131,7 @@ player_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 chest_group = pygame.sprite.Group()
 door_group = pygame.sprite.Group()
+
 wall_inner_top_right_group = pygame.sprite.Group()
 wall_inner_top_left_group = pygame.sprite.Group()
 wall_side_mid_left_group = pygame.sprite.Group()
@@ -101,6 +147,11 @@ wall_side_front_left_group = pygame.sprite.Group()
 wall_side_front_right_group = pygame.sprite.Group()
 wall_side_top_left_group = pygame.sprite.Group()
 wall_side_top_right_group = pygame.sprite.Group()
+wall_mid_group = pygame.sprite.Group()
+
+lava_fountain_group = pygame.sprite.Group()
+lava_fountain_bottom_group = pygame.sprite.Group()
+lava_fountain_top_group = pygame.sprite.Group()
 
 
 class Tile(pygame.sprite.Sprite):
@@ -118,7 +169,7 @@ def generate_level(level):
             if level[y][x] == ':':
                 Tile(tile_images['floors'][randint(1, 8)], x, y)
             elif level[y][x] == '#':
-                Tile(tile_images['wall'][3], x, y)
+                Wall_mid(walls_textures['wall'][3], x, y)
             elif level[y][x] == 'L':
                 Tile(tile_images['wall'][1], x, y)
             elif level[y][x] == 'R':
@@ -179,9 +230,59 @@ def generate_level(level):
             elif level[y][x] == ')':
                 Tile(tile_images['floors'][randint(1, 8)], x, y)
                 walls_side_top_right.append(Wall_side_top_right(x, y))
-        print(level[y])
+            elif level[y][x] == 'F':
+                lava_fountains_mid.append(Lava_fountains(x, y))
+            elif level[y][x] == 'W':
+                lava_fountains_bottom.append(Lava_fountains_bottom(x, y))
+            elif level[y][x] == '^':
+                Tile(tile_images['floors'][randint(1, 8)], x, y)
+                lava_fountains_top.append(Lava_fountains_top(x, y))
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
+
+
+class Lava_fountains_top(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(lava_fountain_top_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = lava_fountain_top_image
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
+class Lava_fountains(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(lava_fountain_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = lava_fountains_anims[1]
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
+class Lava_fountains_bottom(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(lava_fountain_bottom_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = lava_fountains_bottom_anims[1]
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
+class Wall_mid(pygame.sprite.Sprite):
+    def __init__(self, im, pos_x, pos_y):
+        super().__init__(wall_mid_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = im
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
 
 
 class Chest(pygame.sprite.Sprite):
@@ -191,7 +292,7 @@ class Chest(pygame.sprite.Sprite):
         self.pos_y = pos_y
         self.image = chest_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y - 2)
+            tile_width * pos_x, tile_height * pos_y - 5)
 
 
 class Wall_side_top_left(pygame.sprite.Sprite):
@@ -351,7 +452,7 @@ class Door(pygame.sprite.Sprite):
         self.pos_y = pos_y
         self.image = door_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x - 25, tile_height * pos_y - 19)
+            tile_width * pos_x - 18, tile_height * pos_y - 19)
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -370,8 +471,10 @@ class Player(pygame.sprite.Sprite):
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.image = player_image
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
+            tile_width * pos_x, tile_height * pos_y - 20
+        )
         self.healt_init()
 
     def healt_init(self):
@@ -419,49 +522,422 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(screen, transition_color, transition_bar)
         pygame.draw.rect(screen, (255, 255, 255), (5, 10, self.health_bar_length, 15), 4)
 
-    def can_player_move(self, key, lvl):
-        x, y = self.pos_x, self.pos_y
-        print(lvl)
+    def can_player_move1(self, key):
         if key == pygame.K_a:
-            if x > 0:
-                lvl_change = [i for i in lvl[y]]
-                if lvl_change[x - 1] != '#' and lvl_change[x - 1] != '?':
-                    lvl_change[x] = ':'
-                    lvl_change[x - 1] = '@'
-                    lvl[y] = ''.join(lvl_change)
-                    self.pos_x, self.pos_y = x - 1, y
-                    self.rect.x -= 16
+            if not self.checker_wall_for_left():
+                self.image = player_anims['left'][1]
+                self.rect.x -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['left'][2]
+                self.rect.x -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['left'][3]
+                self.rect.x -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['left'][4]
+                self.rect.x -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
         elif key == pygame.K_d:
-            if x < len(lvl[0]) - 2:
-                lvl_change = [i for i in lvl[y]]
-                if lvl_change[x + 1] != '#' and lvl_change[x + 1] != '?':
-                    lvl_change[x] = ':'
-                    lvl_change[x + 1] = '@'
-                    lvl[y] = ''.join(lvl_change)
-                    self.pos_x, self.pos_y = x + 1, y
-                    self.rect.x += 16
+            if not self.checker_wall_for_right():
+                self.image = player_anims['right'][1]
+                self.rect.x += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['right'][2]
+                self.rect.x += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['right'][3]
+                self.rect.x += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['right'][4]
+                self.rect.x += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
         elif key == pygame.K_w:
-            if y > 0:
-                lvl_change2 = [i for i in lvl[y - 1]]
-                lvl_change1 = [i for i in lvl[y]]
-                if lvl_change2[x] != '#' and lvl_change2[x] != '?':
-                    lvl_change1[x] = ':'
-                    lvl_change2[x] = '@'
-                    lvl[y] = ''.join(lvl_change1)
-                    lvl[y - 1] = ''.join(lvl_change2)
-                    self.pos_x, self.pos_y = x, y - 1
-                    self.rect.y -= 16
+            if not self.checker_wall_for_top():
+                self.image = player_anims['up'][1]
+                self.rect.y -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['up'][2]
+                self.rect.y -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['up'][3]
+                self.rect.y -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['up'][4]
+                self.rect.y -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
         elif key == pygame.K_s:
-            if y < len(lvl) - 2:
-                lvl_change2 = [i for i in lvl[y + 1]]
-                lvl_change1 = [i for i in lvl[y]]
-                if lvl_change2[x] != '#' and lvl_change2[x] != '?':
-                    lvl_change1[x] = ':'
-                    lvl_change2[x] = '@'
-                    lvl[y] = ''.join(lvl_change1)
-                    lvl[y + 1] = ''.join(lvl_change2)
-                    self.pos_x, self.pos_y = x, y + 1
-                    self.rect.y += 16
+            if not self.checker_wall_for_bottom():
+                self.image = player_anims['down'][1]
+                self.rect.y += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['down'][2]
+                self.rect.y += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['down'][3]
+                self.rect.y += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['down'][4]
+                self.rect.y += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+    def checker_wall_for_left(self):
+        if pygame.sprite.spritecollideany(self, wall_side_mid_left_group):
+            return True
+        elif pygame.sprite.spritecollideany(self, wall_inner_top_left_group):
+            return True
+        else:
+            self.rect = self.rect.move(-1, 0)
+            return False
+
+    def checker_wall_for_right(self):
+        if pygame.sprite.spritecollideany(self, wall_side_mid_right_group):
+            return True
+        else:
+            self.rect = self.rect.move(1, 0)
+            return False
+
+    def checker_wall_for_top(self):
+        global flagD, flagU, flagL, flagR
+        if pygame.sprite.spritecollideany(self, wall_side_mid_right_group):
+            return True
+        if pygame.sprite.spritecollideany(self, wall_top_mid_in_group):
+            flagR = flagL = flagU = flagD = False
+            return True
+        else:
+            self.rect = self.rect.move(0, -1)
+            return False
+
+    def checker_wall_for_bottom(self):
+        if pygame.sprite.spritecollideany(self, wall_side_mid_right_group):
+            return True
+        else:
+            self.rect = self.rect.move(0, 1)
+            return False
+
+    def can_player_move2(self, key1, key2):
+        if (key1 == pygame.K_d and key2 == pygame.K_w) or (key1 == pygame.K_w and key2 == pygame.K_d):
+            if not self.checker_wall_for_up_right():
+                self.image = player_anims['up_right'][1]
+                self.rect.y -= 2
+                self.rect.x += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['up_right'][2]
+                self.rect.y -= 2
+                self.rect.x += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['up_right'][3]
+                self.rect.y -= 2
+                self.rect.x += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['up_right'][4]
+                self.rect.y -= 2
+                self.rect.x += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+        elif (key1 == pygame.K_d and key2 == pygame.K_s) or (key1 == pygame.K_s and key2 == pygame.K_d):
+            if not self.checker_wall_for_right_down():
+                self.image = player_anims['right_down'][1]
+                self.rect.y += 2
+                self.rect.x += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['right_down'][2]
+                self.rect.y += 2
+                self.rect.x += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['right_down'][3]
+                self.rect.y += 2
+                self.rect.x += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['right_down'][4]
+                self.rect.y += 2
+                self.rect.x += 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+        elif (key1 == pygame.K_a and key2 == pygame.K_s) or (key1 == pygame.K_s and key2 == pygame.K_a):
+            if not self.checker_wall_for_left_down():
+                self.image = player_anims['left_down'][1]
+                self.rect.y += 2
+                self.rect.x -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['left_down'][2]
+                self.rect.y += 2
+                self.rect.x -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['left_down'][3]
+                self.rect.y += 2
+                self.rect.x -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['left_down'][4]
+                self.rect.y += 2
+                self.rect.x -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+        elif (key1 == pygame.K_a and key2 == pygame.K_w) or (key1 == pygame.K_w and key2 == pygame.K_a):
+            if not self.checker_wall_for_up_left():
+                self.image = player_anims['up_left'][1]
+                self.rect.y -= 2
+                self.rect.x -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['up_left'][2]
+                self.rect.y -= 2
+                self.rect.x -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['up_left'][3]
+                self.rect.y -= 2
+                self.rect.x -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+                self.image = player_anims['up_left'][4]
+                self.rect.y -= 2
+                self.rect.x -= 2
+                all_sprites.draw(screen)
+                player_group.draw(screen)
+                player_group.update()
+                all_sprites.update()
+                pygame.display.flip()
+                time.sleep(0.05)
+
+    def checker_wall_for_up_right(self):
+        if pygame.sprite.spritecollideany(self, wall_side_mid_right_group):
+            return True
+        else:
+            self.rect = self.rect.move(1, -1)
+            return False
+
+    def checker_wall_for_right_down(self):
+        if pygame.sprite.spritecollideany(self, wall_side_mid_right_group):
+            return True
+        else:
+            self.rect = self.rect.move(1, 1)
+            return False
+
+    def checker_wall_for_left_down(self):
+        if pygame.sprite.spritecollideany(self, wall_side_mid_right_group):
+            return True
+        else:
+            self.rect = self.rect.move(-1, 1)
+            return False
+
+    def checker_wall_for_up_left(self):
+        if pygame.sprite.spritecollideany(self, wall_side_mid_right_group):
+            return True
+        else:
+            self.rect = self.rect.move(-1, -1)
+            return False
+
+    def stay_on_place(self):
+        self.image = player_anims['stay_on_place'][1]
+        all_sprites.draw(screen)
+        player_group.draw(screen)
+        player_group.update()
+        all_sprites.update()
+        pygame.display.flip()
+        time.sleep(0.05)
+
+        self.image = player_anims['stay_on_place'][2]
+        all_sprites.draw(screen)
+        player_group.draw(screen)
+        player_group.update()
+        all_sprites.update()
+        pygame.display.flip()
+        time.sleep(0.05)
+
+        self.image = player_anims['stay_on_place'][3]
+        all_sprites.draw(screen)
+        player_group.draw(screen)
+        player_group.update()
+        all_sprites.update()
+        pygame.display.flip()
+        time.sleep(0.05)
+
+        self.image = player_anims['stay_on_place'][4]
+        all_sprites.draw(screen)
+        player_group.draw(screen)
+        player_group.update()
+        all_sprites.update()
+        pygame.display.flip()
+        time.sleep(0.05)
 
 
 if __name__ == '__main__':
@@ -473,6 +949,9 @@ if __name__ == '__main__':
     size = width, height = level_x * tile_width, level_y * tile_height
     screen = pygame.display.set_mode(size)
     running = True
+    flagR = flagL = flagD = flagU = False
+    see_L = True
+    see_R = see_U = see_D = False
     fps = 60
     clock = pygame.time.Clock()
     pygame.mixer.music.load('Assets/Sounds/music_on_the_background.mp3')
@@ -483,13 +962,13 @@ if __name__ == '__main__':
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
-                    player.can_player_move(pygame.K_a, level)
+                    flagL = True
                 if event.key == pygame.K_w:
-                    player.can_player_move(pygame.K_w, level)
+                    flagU = True
                 if event.key == pygame.K_s:
-                    player.can_player_move(pygame.K_s, level)
+                    flagD = True
                 if event.key == pygame.K_d:
-                    player.can_player_move(pygame.K_d, level)
+                    flagR = True
                 if event.key == pygame.K_UP:
                     player.get_health(200)
                     pygame.mixer.music.load('Assets/Sounds/Health_player.mp3')
@@ -498,7 +977,34 @@ if __name__ == '__main__':
                     player.get_damage(200)
                     pygame.mixer.music.load('Assets/Sounds/Damage_player.mp3')
                     pygame.mixer.music.play()
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_a:
+                    flagL = False
+                if event.key == pygame.K_d:
+                    flagR = False
+                if event.key == pygame.K_w:
+                    flagU = False
+                if event.key == pygame.K_s:
+                    flagD = False
 
+        if flagR and flagU:
+            player.can_player_move2(pygame.K_d, pygame.K_w)
+        elif flagR and flagD:
+            player.can_player_move2(pygame.K_d, pygame.K_s)
+        elif flagL and flagD:
+            player.can_player_move2(pygame.K_a, pygame.K_s)
+        elif flagU and flagL:
+            player.can_player_move2(pygame.K_a, pygame.K_w)
+        elif flagR:
+            player.can_player_move1(pygame.K_d)
+        elif flagL:
+            player.can_player_move1(pygame.K_a)
+        elif flagU:
+            player.can_player_move1(pygame.K_w)
+        elif flagD:
+            player.can_player_move1(pygame.K_s)
+        else:
+            player.stay_on_place()
         screen.fill((0, 0, 0))
 
         all_sprites.draw(screen)
@@ -522,6 +1028,9 @@ if __name__ == '__main__':
         wall_side_front_right_group.draw(screen)
         wall_side_top_left_group.draw(screen)
         wall_side_top_right_group.draw(screen)
+        lava_fountain_group.draw(screen)
+        lava_fountain_bottom_group.draw(screen)
+        lava_fountain_top_group.draw(screen)
 
 
         all_sprites.update()
@@ -545,6 +1054,9 @@ if __name__ == '__main__':
         wall_side_front_right_group.update()
         wall_side_top_left_group.update()
         wall_side_top_right_group.update()
+        lava_fountain_group.update()
+        lava_fountain_bottom_group.update()
+        lava_fountain_top_group.update()
 
         pygame.display.flip()
     pygame.quit()
