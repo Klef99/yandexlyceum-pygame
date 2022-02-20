@@ -43,12 +43,17 @@ player_image = load_image('knight_m_run_anim_f0.png')
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
+walkable_group = pygame.sprite.Group()
+wall_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile, pos_x, pos_y):
-        super().__init__(tiles_group, all_sprites)
+        if tile in tile_images['empty']:
+            super().__init__(walkable_group, tiles_group, all_sprites)
+        elif tile == tile_images['wall']:
+            super().__init__(wall_group, tiles_group, all_sprites)
         self.image = tile
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
@@ -72,13 +77,28 @@ def generate_level(level):
     return new_player, x, y
 
 
+def draw_sprite_group(screen):
+    all_sprites.draw(screen)
+    tiles_group.draw(screen)
+    player_group.draw(screen)
+    wall_group.draw(screen)
+    walkable_group.draw(screen)
+
+    all_sprites.update()
+    tiles_group.update()
+    player_group.update()
+    wall_group.update()
+    walkable_group.update()
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
         self.image = player_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 15, tile_height * pos_y + 5)
+            (tile_width) * pos_x, (tile_height - 3) * pos_y)
         self.healt_init()
+        self.speed = 16
 
     def healt_init(self):
         self.current_health = 500
@@ -142,25 +162,20 @@ if __name__ == '__main__':
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
-                    player.rect.x -= 10
+                    player.rect.x -= player.speed
+                    if pygame.sprite.spritecollideany(player, wall_group):
+                        player.rect.x += player.speed
                 if event.key == pygame.K_w:
-                    player.rect.y -= 10
+                    player.rect.y -= 16
                 if event.key == pygame.K_s:
-                    player.rect.y += 10
+                    player.rect.y += 16
                 if event.key == pygame.K_d:
-                    player.rect.x += 10
+                    player.rect.x += 16
                 if event.key == pygame.K_UP:
                     player.get_health(200)
                 if event.key == pygame.K_DOWN:
                     player.get_damage(200)
         screen.fill((0, 0, 0))
-
-        all_sprites.draw(screen)
-        tiles_group.draw(screen)
-        player_group.draw(screen)
-        all_sprites.update()
-        tiles_group.update()
-        player_group.update()
-
+        draw_sprite_group(screen)
         pygame.display.flip()
     pygame.quit()
