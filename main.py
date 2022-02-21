@@ -126,9 +126,15 @@ empties = []
 enemy_image = load_image('chort_idle_anim_f0.png')
 chest_image = load_image('chest_empty_open_anim_f0.png')
 door_image = load_image('doors_all3.png')
+door_open_image = load_image('doors_open.png')
 lava_fountain_top_image = load_image('wall_fountain_top.png')
 sword = load_image('weapon_anime_sword.png')
 empty_image = load_image('empty.png')
+shadow_checker_image = load_image('border_checker3.png')
+border_floor_top_image = load_image('border_floor_t2.png')
+border_floor_right_image = load_image('border_floor_r.png')
+border_floor_bottom_image = load_image('border_floor_b2.png')
+border_floor_left_image = load_image('border_floor_l.png')
 
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
@@ -161,26 +167,40 @@ lava_fountain_top_group = pygame.sprite.Group()
 weapon_group = pygame.sprite.Group()
 empty_group = pygame.sprite.Group()
 floor_group = pygame.sprite.Group()
+shadow_checker_group = pygame.sprite.Group()
+border_floor_top_group = pygame.sprite.Group()
+border_floor_right_group = pygame.sprite.Group()
+border_floor_bottom_group = pygame.sprite.Group()
+border_floor_left_group = pygame.sprite.Group()
 
 
 def generate_level(level):
-    new_player, x, y, weapon = None, None, None, None
+    new_player, x, y, weapon, shadow = None, None, None, None, None
     for y in range(len(level)):
         for x in range(len(level[y])):
             if level[y][x] == ':':
                 Floor(x, y)
             elif level[y][x] == '#':
                 Wall_front_mid(x, y)
+                Border_floor_top(x, y)
+                Border_floor_bottom(x, y)
             elif level[y][x] == 'L':
                 Wall_front_left(x, y)
+                Border_floor_bottom(x, y)
             elif level[y][x] == 'R':
                 Wall_front_right(x, y)
+                Border_floor_bottom(x, y)
+            elif level[y][x] == '$':
+                Wall_front_mid(x, y)
+                Border_floor_bottom(x, y)
             elif level[y][x] == '+':
                 Floor(x, y)
                 walls_inner_top_right.append(Wall_inner_top_right(x, y))
+                Border_floor_right(x, y)
             elif level[y][x] == '-':
                 Floor(x, y)
                 walls_inner_top_left.append(Wall_inner_top_left(x, y))
+                Border_floor_left(x, y)
             elif level[y][x] == "'":
                 walls_top_left.append(Wall_top_left(x, y))
             elif level[y][x] == '"':
@@ -193,31 +213,36 @@ def generate_level(level):
             elif level[y][x] == '*':
                 Floor(x, y)
                 walls_side_mid_left.append(Wall_side_mid_left(x, y))
+                Border_floor_left(x, y)
             elif level[y][x] == '/':
                 Floor(x, y)
                 walls_side_mid_right.append(Wall_side_mid_right(x, y))
+                Border_floor_right(x, y)
             elif level[y][x] == '>':
                 Floor(x, y)
                 walls_corner_left.append(Wall_corner_left(x, y))
+                Border_floor_top(x, y)
             elif level[y][x] == '<':
                 Floor(x, y)
                 walls_corner_right.append(Wall_corner_right(x, y))
-            elif level[y][x] == '<':
-                Floor(x, y)
-                walls_corner_right.append(Wall_corner_right(x, y))
+                Border_floor_top(x, y)
             elif level[y][x] == '[':
                 Floor(x, y)
                 walls_side_front_left.append(Wall_side_front_left(x, y))
+                Border_floor_right(x, y)
             elif level[y][x] == ']':
                 Floor(x, y)
                 walls_side_front_right.append(Wall_side_front_right(x, y))
+                Border_floor_left(x, y)
             elif level[y][x] == '@':
                 Floor(x, y)
+                shadow = Shadow_checker(x, y)
                 new_player = Player(x, y)
                 weapon = Weapon(x, y)
             elif level[y][x] == '!':
                 Floor(x, y)
-                enemies.append(Enemy(x, y))
+                enemy = Enemy(x, y)
+                enemies.append(enemy)
             elif level[y][x] == '?':
                 Floor(x, y)
                 chests.append(Chest(x, y))
@@ -239,8 +264,10 @@ def generate_level(level):
                 lava_fountains_top.append(Lava_fountains_top(x, y))
             elif level[y][x] == '_':
                 empties.append(Empty(x, y))
+            elif level[y][x] == '~':
+                Floor(x, y)
     # вернем игрока, а также размер поля в клетках
-    return new_player, x, y, weapon
+    return new_player, x, y, weapon, shadow
 
 
 class Wall_front_left(pygame.sprite.Sprite):
@@ -323,6 +350,7 @@ class Wall_front_mid(pygame.sprite.Sprite):
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.image = wall_textures['wall_front_mid'][randint(1, 3)]
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
 
@@ -489,6 +517,50 @@ class Wall_side_mid_right(pygame.sprite.Sprite):
             tile_width * pos_x + 10, tile_height * pos_y)
 
 
+class Border_floor_top(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(border_floor_top_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = border_floor_top_image
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y + 12)
+
+
+class Border_floor_right(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(border_floor_right_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = border_floor_right_image
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x + 10, tile_height * pos_y)
+
+
+class Border_floor_bottom(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(border_floor_bottom_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = border_floor_bottom_image
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y + 5)
+
+
+class Border_floor_left(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(border_floor_left_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = border_floor_left_image
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+
 class Door(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(door_group, all_sprites)
@@ -498,6 +570,20 @@ class Door(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(
             tile_width * pos_x - 18, tile_height * pos_y - 19)
 
+    def open_door(self):
+        self.image = door_open_image
+
+
+class Shadow_checker(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(shadow_checker_group, all_sprites)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.image = shadow_checker_image
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x - 1, tile_height * pos_y + 9)
+
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
@@ -505,8 +591,15 @@ class Enemy(pygame.sprite.Sprite):
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.image = enemy_image
+        self.lives = 3
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y - 13)
+
+    def taking_damage(self):
+        self.lives -= 1
+        if self.lives == 0:
+            print('dead')
+            self.image = empty_image
 
 
 class Weapon(pygame.sprite.Sprite):
@@ -515,8 +608,20 @@ class Weapon(pygame.sprite.Sprite):
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.image = sword
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y - 13)
+
+    def hit_check(self):
+        if pygame.sprite.spritecollideany(self, enemy_group):
+            for i in range(len(enemies)):
+                if pygame.sprite.collide_mask(self, enemies[i]):
+                    enemies[i].taking_damage()
+                    print('sdfsfsefefdsfefssfee')
+                    break
+            return True
+        else:
+            return False
 
 
 class Player(pygame.sprite.Sprite):
@@ -581,109 +686,113 @@ class Player(pygame.sprite.Sprite):
             if not self.checker_wall_for_left():
                 for i in range(1, 5):
                     self.image = player_anims['left'][i]
-                    self.rect.x -= 2
-                    weapon.rect.x -= 2
+                    self.rect.x -= 1
+                    weapon.rect.x -= 1
+                    shadow.rect.x -= 1
                     all_sprites.draw(screen)
+                    shadow_checker_group.draw(screen)
                     weapon_group.draw(screen)
                     player_group.draw(screen)
 
                     all_sprites.update()
+                    shadow_checker_group.update()
                     weapon_group.update()
                     player_group.update()
                     pygame.display.flip()
-                    time.sleep(0.04)
+                    time.sleep(0.03)
 
         elif key == pygame.K_d:
             if not self.checker_wall_for_right():
                 for i in range(1, 5):
                     self.image = player_anims['right'][i]
-                    self.rect.x += 2
-                    weapon.rect.x += 2
+                    self.rect.x += 1
+                    weapon.rect.x += 1
+                    shadow.rect.x += 1
                     all_sprites.draw(screen)
+                    shadow_checker_group.draw(screen)
                     weapon_group.draw(screen)
                     player_group.draw(screen)
 
                     all_sprites.update()
+                    shadow_checker_group.update()
                     weapon_group.update()
                     player_group.update()
                     pygame.display.flip()
-                    time.sleep(0.04)
+                    time.sleep(0.03)
 
         elif key == pygame.K_w:
             if not self.checker_wall_for_top():
                 for i in range(1, 5):
                     self.image = player_anims['up'][i]
-                    self.rect.y -= 2
-                    weapon.rect.y -= 2
+                    self.rect.y -= 1
+                    weapon.rect.y -= 1
+                    shadow.rect.y -= 1
                     all_sprites.draw(screen)
+                    shadow_checker_group.draw(screen)
                     weapon_group.draw(screen)
                     player_group.draw(screen)
 
                     all_sprites.update()
+                    shadow_checker_group.update()
                     weapon_group.update()
                     player_group.update()
                     pygame.display.flip()
-                    time.sleep(0.04)
+                    time.sleep(0.03)
 
         elif key == pygame.K_s:
             if not self.checker_wall_for_bottom():
                 for i in range(1, 5):
                     self.image = player_anims['down'][i]
-                    self.rect.y += 2
-                    weapon.rect.y += 2
+                    self.rect.y += 1
+                    weapon.rect.y += 1
+                    shadow.rect.y += 1
                     all_sprites.draw(screen)
+                    shadow_checker_group.draw(screen)
                     weapon_group.draw(screen)
                     player_group.draw(screen)
 
                     all_sprites.update()
+                    shadow_checker_group.update()
                     weapon_group.update()
                     player_group.update()
                     pygame.display.flip()
-                    time.sleep(0.04)
+                    time.sleep(0.03)
 
     def checker_wall_for_left(self):
         global flagD, flagU, flagL, flagR
-        if pygame.sprite.spritecollideany(self, wall_side_mid_left_group):
+        if pygame.sprite.spritecollideany(shadow, border_floor_left_group):
             flagL = False
             return True
-        elif pygame.sprite.spritecollideany(self, wall_inner_top_left_group):
-            return True
         else:
-            self.rect = self.rect.move(-1, 0)
-            weapon.rect = weapon.rect.move(-1, 0)
             return False
 
     def checker_wall_for_right(self):
         global flagD, flagU, flagL, flagR
-        if pygame.sprite.spritecollideany(self, wall_side_mid_right_group):
+        if pygame.sprite.spritecollideany(shadow, border_floor_right_group):
             flagR = False
             return True
         else:
-            self.rect = self.rect.move(1, 0)
-            weapon.rect = weapon.rect.move(1, 0)
             return False
 
     def checker_wall_for_top(self):
         global flagD, flagU, flagL, flagR
-        if pygame.sprite.spritecollideany(self, wall_top_mid_group):
+        if pygame.sprite.spritecollideany(shadow, border_floor_top_group):
             flagU = False
             return True
-        elif pygame.sprite.spritecollideany(self, wall_top_mid_in_group):
-            flagU = False
-            return True
+        elif pygame.sprite.spritecollideany(shadow, door_group):
+            for i in range(len(doors)):
+                if pygame.sprite.collide_mask(shadow, doors[i]):
+                    doors[i].open_door()
+                    print('doooooooor')
         else:
-            self.rect = self.rect.move(0, -1)
-            weapon.rect = weapon.rect.move(0, -1)
             return False
 
     def checker_wall_for_bottom(self):
         global flagD, flagU, flagL, flagR
-        if pygame.sprite.spritecollideany(self, wall_top_mid_in_group):
+        if pygame.sprite.spritecollideany(weapon, border_floor_bottom_group):
             flagD = False
             return True
         else:
-            self.rect = self.rect.move(0, 1)
-            weapon.rect = weapon.rect.move(0, 1)
             return False
 
     def can_player_move2(self, key1, key2):
@@ -691,15 +800,19 @@ class Player(pygame.sprite.Sprite):
             if not self.checker_wall_for_up_right():
                 for i in range(1, 5):
                     self.image = player_anims['up_right'][i]
-                    self.rect.y -= 2
-                    self.rect.x += 2
-                    weapon.rect.y -= 2
-                    weapon.rect.x += 2
+                    self.rect.y -= 1
+                    self.rect.x += 1
+                    weapon.rect.y -= 1
+                    weapon.rect.x += 1
+                    shadow.rect.y -= 1
+                    shadow.rect.x += 1
                     all_sprites.draw(screen)
+                    shadow_checker_group.draw(screen)
                     weapon_group.draw(screen)
                     player_group.draw(screen)
 
                     all_sprites.update()
+                    shadow_checker_group.update()
                     weapon_group.update()
                     player_group.update()
                     pygame.display.flip()
@@ -709,15 +822,19 @@ class Player(pygame.sprite.Sprite):
             if not self.checker_wall_for_right_down():
                 for i in range(1, 5):
                     self.image = player_anims['right_down'][i]
-                    self.rect.y += 2
-                    self.rect.x += 2
-                    weapon.rect.y += 2
-                    weapon.rect.x += 2
+                    self.rect.y += 1
+                    self.rect.x += 1
+                    weapon.rect.y += 1
+                    weapon.rect.x += 1
+                    shadow.rect.y += 1
+                    shadow.rect.x += 1
                     all_sprites.draw(screen)
+                    shadow_checker_group.draw(screen)
                     weapon_group.draw(screen)
                     player_group.draw(screen)
 
                     all_sprites.update()
+                    shadow_checker_group.update()
                     weapon_group.update()
                     player_group.update()
                     pygame.display.flip()
@@ -727,15 +844,19 @@ class Player(pygame.sprite.Sprite):
             if not self.checker_wall_for_left_down():
                 for i in range(1, 5):
                     self.image = player_anims['left_down'][i]
-                    self.rect.y += 2
-                    self.rect.x -= 2
-                    weapon.rect.y += 2
-                    weapon.rect.x -= 2
+                    self.rect.y += 1
+                    self.rect.x -= 1
+                    weapon.rect.y += 1
+                    weapon.rect.x -= 1
+                    shadow.rect.y += 1
+                    shadow.rect.x -= 1
                     all_sprites.draw(screen)
+                    shadow_checker_group.draw(screen)
                     weapon_group.draw(screen)
                     player_group.draw(screen)
 
                     all_sprites.update()
+                    shadow_checker_group.update()
                     weapon_group.update()
                     player_group.update()
                     pygame.display.flip()
@@ -745,15 +866,19 @@ class Player(pygame.sprite.Sprite):
             if not self.checker_wall_for_up_left():
                 for i in range(1, 5):
                     self.image = player_anims['up_left'][i]
-                    self.rect.y -= 2
-                    self.rect.x -= 2
-                    weapon.rect.y -= 2
-                    weapon.rect.x -= 2
+                    self.rect.y -= 1
+                    self.rect.x -= 1
+                    weapon.rect.y -= 1
+                    weapon.rect.x -= 1
+                    shadow.rect.y -= 1
+                    shadow.rect.x -= 1
                     all_sprites.draw(screen)
+                    shadow_checker_group.draw(screen)
                     weapon_group.draw(screen)
                     player_group.draw(screen)
 
                     all_sprites.update()
+                    shadow_checker_group.update()
                     weapon_group.update()
                     player_group.update()
                     pygame.display.flip()
@@ -761,57 +886,67 @@ class Player(pygame.sprite.Sprite):
 
     def checker_wall_for_up_right(self):
         global flagR, flagL, flagU, flagD
-        if pygame.sprite.spritecollideany(self, wall_side_mid_right_group):
+        if pygame.sprite.spritecollideany(shadow, border_floor_right_group):
             flagR = False
             return True
-        elif pygame.sprite.spritecollideany(self, wall_top_mid_group):
+        elif pygame.sprite.spritecollideany(shadow, border_floor_top_group):
             flagU = False
             return True
-        elif pygame.sprite.spritecollideany(self, wall_top_mid_in_group):
-            return True
         else:
-            self.rect = self.rect.move(1, -1)
-            weapon.rect = weapon.rect.move(1, -1)
             return False
 
     def checker_wall_for_right_down(self):
         global flagR, flagL, flagU, flagD
-        if pygame.sprite.spritecollideany(self, wall_side_mid_right_group):
+        if pygame.sprite.spritecollideany(shadow, border_floor_right_group):
             flagR = False
             return True
+        elif pygame.sprite.spritecollideany(shadow, border_floor_bottom_group):
+            flagD = False
+            return True
         else:
-            self.rect = self.rect.move(1, 1)
-            weapon.rect = weapon.rect.move(1, 1)
             return False
 
     def checker_wall_for_left_down(self):
         global flagR, flagL, flagU, flagD
-        if pygame.sprite.spritecollideany(self, wall_side_mid_left_group):
+        if pygame.sprite.spritecollideany(shadow, border_floor_left_group):
             flagL = False
             return True
+        elif pygame.sprite.spritecollideany(shadow, border_floor_bottom_group):
+            flagD = False
+            return True
         else:
-            self.rect = self.rect.move(-1, 1)
-            weapon.rect = weapon.rect.move(-1, 1)
             return False
 
     def checker_wall_for_up_left(self):
         global flagR, flagL, flagU, flagD
-        if pygame.sprite.spritecollideany(self, wall_side_mid_left_group):
+        if pygame.sprite.spritecollideany(shadow, border_floor_left_group):
             flagL = False
             return True
-        elif pygame.sprite.spritecollideany(self, wall_top_mid_group):
+        elif pygame.sprite.spritecollideany(shadow, border_floor_top_group):
             flagU = False
             return True
-        elif pygame.sprite.spritecollideany(self, wall_top_mid_in_group):
-            return True
         else:
-            self.rect = self.rect.move(-1, -1)
-            weapon.rect = weapon.rect.move(-1, -1)
             return False
 
     def stay_on_place(self):
         for i in range(1, 5):
             self.image = player_anims['stay_on_place'][i]
+            #all_sprites.draw(screen)
+            #weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            #all_sprites.update()
+            #weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.07)
+
+    def hit(self):
+        if see_U:
+            hit = 0
+
+            weapon.rect.x = self.rect.x - 16
+            weapon.rect.y = self.rect.y - 10
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
@@ -821,6 +956,247 @@ class Player(pygame.sprite.Sprite):
             player_group.update()
             pygame.display.flip()
             time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.x = self.rect.x - 8
+            weapon.rect.y = self.rect.y - 10
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.x = self.rect.x + 8
+            weapon.rect.y = self.rect.y - 10
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.x = self.rect.x + 16
+            weapon.rect.y = self.rect.y - 10
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.y = self.rect.y
+            weapon.rect.x = self.rect.x
+            if hit > 0:
+                print('sdfsf1')
+
+        elif see_R:
+            hit = 0
+
+            weapon.rect.x = self.rect.x + 10
+            weapon.rect.y = self.rect.y - 16
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.x = self.rect.x + 10
+            weapon.rect.y = self.rect.y - 8
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.x = self.rect.x + 10
+            weapon.rect.y = self.rect.y + 8
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.x = self.rect.x + 10
+            weapon.rect.y = self.rect.y + 16
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.y = self.rect.y
+            weapon.rect.x = self.rect.x
+            if hit > 0:
+                print('sdfsf2')
+
+        elif see_D:
+            hit = 0
+
+            weapon.rect.x = self.rect.x - 16
+            weapon.rect.y = self.rect.y + 10
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.x = self.rect.x - 8
+            weapon.rect.y = self.rect.y + 10
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.x = self.rect.x + 8
+            weapon.rect.y = self.rect.y + 10
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.x = self.rect.x + 16
+            weapon.rect.y = self.rect.y + 10
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.y = self.rect.y
+            weapon.rect.x = self.rect.x
+            if hit > 0:
+                print('sdfsf3')
+
+        elif see_L:
+            hit = 0
+
+            weapon.rect.x = self.rect.x - 10
+            weapon.rect.y = self.rect.y - 16
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.x = self.rect.x - 10
+            weapon.rect.y = self.rect.y - 8
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.x = self.rect.x - 10
+            weapon.rect.y = self.rect.y + 8
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.x = self.rect.x - 10
+            weapon.rect.y = self.rect.y + 16
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
+            player_group.draw(screen)
+
+            all_sprites.update()
+            weapon_group.update()
+            player_group.update()
+            pygame.display.flip()
+            time.sleep(0.05)
+            if weapon.hit_check():
+                hit += 1
+
+            weapon.rect.y = self.rect.y
+            weapon.rect.x = self.rect.x
+            if hit > 0:
+                print('sdfsf4')
 
 
 if __name__ == '__main__':
@@ -828,14 +1204,15 @@ if __name__ == '__main__':
     pygame.display.set_caption('Deep Dark Dungeon (DDD)')
     generate_dungeon('map.txt', 70, 40, 110, 50, 60)
     level = load_level('example_map2.txt')
-    player, level_x, level_y, weapon = generate_level(level)
+    player, level_x, level_y, weapon, shadow = generate_level(level)
     size = width, height = level_x * tile_width, level_y * tile_height
     screen = pygame.display.set_mode(size)
     running = True
     flagR = flagL = flagD = flagU = False
-    see_L = True
-    see_R = see_U = see_D = False
+    see_R = True
+    see_L = see_U = see_D = False
     fps = 60
+    print(enemies)
     clock = pygame.time.Clock()
     pygame.mixer.music.load('Assets/Sounds/music_on_the_background.mp3')
     pygame.mixer.music.play(-1)
@@ -845,12 +1222,20 @@ if __name__ == '__main__':
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
+                    see_L = True
+                    see_R = see_U = see_D = False
                     flagL = True
                 if event.key == pygame.K_w:
+                    see_U = True
+                    see_R = see_L = see_D = False
                     flagU = True
                 if event.key == pygame.K_s:
+                    see_D = True
+                    see_R = see_U = see_L = False
                     flagD = True
                 if event.key == pygame.K_d:
+                    see_R = True
+                    see_L = see_U = see_D = False
                     flagR = True
                 if event.key == pygame.K_UP:
                     player.get_health(200)
@@ -860,6 +1245,8 @@ if __name__ == '__main__':
                     player.get_damage(200)
                     pygame.mixer.music.load('Assets/Sounds/Damage_player.mp3')
                     pygame.mixer.music.play()
+                if event.key == pygame.K_SPACE:
+                    player.hit()
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_a:
                     flagL = False
@@ -891,7 +1278,7 @@ if __name__ == '__main__':
         screen.fill((0, 0, 0))
 
         all_sprites.draw(screen)
-        tiles_group.draw(screen)
+        floor_group.draw(screen)
         player_group.draw(screen)
         enemy_group.draw(screen)
         chest_group.draw(screen)
@@ -918,10 +1305,15 @@ if __name__ == '__main__':
         wall_front_mid_group.draw(screen)
         wall_front_right_group.draw(screen)
         wall_front_left_group.draw(screen)
+        shadow_checker_group.draw(screen)
+        border_floor_top_group.draw(screen)
+        border_floor_right_group.draw(screen)
+        border_floor_bottom_group.draw(screen)
+        border_floor_left_group.draw(screen)
 
 
         all_sprites.update()
-        tiles_group.update()
+        floor_group.update()
         player_group.update()
         door_group.update()
         chest_group.update()
@@ -948,6 +1340,11 @@ if __name__ == '__main__':
         wall_front_left_group.update()
         wall_front_mid_group.update()
         wall_front_right_group.update()
+        shadow_checker_group.update()
+        border_floor_top_group.update()
+        border_floor_right_group.update()
+        border_floor_bottom_group.update()
+        border_floor_left_group.update()
 
         pygame.display.flip()
     pygame.quit()
