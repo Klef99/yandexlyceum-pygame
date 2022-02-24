@@ -602,6 +602,13 @@ class Enemy(pygame.sprite.Sprite):
             player.score += 50
             self.image = floor_textures[3]
 
+    def ai(self):
+        if self.pos_x - player.pos_x == 3:
+            self.rect.x += 1
+        enemy_group.draw(screen)
+        enemy_group.update()
+
+
 
 class Weapon(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
@@ -778,9 +785,14 @@ class Player(pygame.sprite.Sprite):
 
     def checker_wall_for_bottom(self):
         global flagD, flagU, flagL, flagR
-        if pygame.sprite.spritecollideany(weapon, border_floor_bottom_group):
+        if pygame.sprite.spritecollideany(shadow, border_floor_bottom_group):
             flagD = False
             return True
+        elif pygame.sprite.spritecollideany(shadow, door_group):
+            for i in range(len(doors)):
+                if pygame.sprite.collide_mask(shadow, doors[i]):
+                    doors[i].open_door()
+                    print('doooooooor')
         else:
             return False
 
@@ -1252,7 +1264,6 @@ if __name__ == '__main__':
     pygame.mixer.music.load('Assets/Sounds/music_on_the_background.mp3')
     pygame.mixer.music.play(-1)
     while running:
-        stat(player.score)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
