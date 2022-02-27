@@ -602,12 +602,18 @@ class Enemy(pygame.sprite.Sprite):
             player.score += 50
             self.image = floor_textures[3]
 
-    def ai(self):
-        if self.pos_x - player.pos_x == 3:
-            self.rect.x += 1
-        enemy_group.draw(screen)
-        enemy_group.update()
-
+    def update(self):
+        if abs(player.pos_x - self.pos_x) <= 5:
+            tmp = 1
+            if player.pos_x - self.pos_x < 0:
+                tmp = -1
+            self.rect.x += tmp
+        elif player.pos_y - self.pos_y <= 5:
+            tmp = 1
+            if player.pos_y - self.pos_y < 0:
+                tmp = -1
+            self.rect.y += tmp
+        pygame.time.wait(50)
 
 
 class Weapon(pygame.sprite.Sprite):
@@ -644,9 +650,6 @@ class Player(pygame.sprite.Sprite):
         )
         self.healt_init()
         self.score = 0
-
-
-
 
     def healt_init(self):
         self.current_health = 500
@@ -1240,7 +1243,7 @@ def start_screen():
 
 def stat(health):
     font = pygame.font.Font(None, 30)
-    text = font.render("Score:"+str(health), True, pygame.Color('white'))
+    text = font.render("Score:" + str(health), True, pygame.Color('white'))
     screen.blit(text, (650, 30))
 
 
@@ -1321,6 +1324,8 @@ if __name__ == '__main__':
             player.can_player_move1(pygame.K_s)
         else:
             player.stay_on_place()
+        for i in enemies:
+            i.update()
         screen.fill((0, 0, 0))
         draw_sprites = [all_sprites, floor_group, player_group, enemy_group, chest_group, door_group,
                         wall_inner_top_right_group, wall_inner_top_left_group, wall_side_mid_left_group,
