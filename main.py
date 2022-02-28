@@ -7,6 +7,7 @@ from procgen import generate_dungeon
 from random import randint
 
 defeat_enemy = 0
+score = 0
 
 
 def load_image(name, colorkey=None):
@@ -109,33 +110,6 @@ player_anims = {
                       3: load_image('knight_m_idle_anim_f2.png'), 4: load_image('knight_m_idle_anim_f3.png')}
 }
 
-tile_width = tile_height = 16
-# основной персонаж
-player = None
-chests = []
-enemies = []
-doors = []
-walls_inner_top_right = []
-walls_inner_top_left = []
-walls_side_mid_left = []
-walls_side_mid_right = []
-walls_corner_left = []
-walls_corner_right = []
-walls_top_left = []
-walls_top_right = []
-walls_top_mid = []
-walls_side_front_left = []
-walls_side_front_right = []
-walls_side_top_left = []
-walls_side_top_right = []
-walls_inner_top_left_out = []
-walls_top_mid_in = []
-lava_fountains_mid = []
-lava_fountains_bottom = []
-lava_fountains_top = []
-empties = []
-
-
 enemy_image = load_image('chort_idle_anim_f0.png')
 chest_image = load_image('chest_empty_open_anim_f0.png')
 chest_open_image = load_image('chest_full_open_anim_f2.png')
@@ -150,42 +124,92 @@ border_floor_right_image = load_image('border_floor_r2.png')
 border_floor_bottom_image = load_image('border_floor_b2.png')
 border_floor_left_image = load_image('border_floor_l2.png')
 
+tile_width = tile_height = 16
+
+
+# основной персонаж
+def get_lists():
+    global player, chests, enemies, doors, walls_inner_top_right, walls_inner_top_left, walls_side_mid_left, \
+        walls_side_mid_right, walls_corner_left, walls_corner_right, walls_top_left, walls_top_right, \
+        walls_top_mid, walls_side_front_left, walls_side_front_right, walls_side_top_left, walls_side_top_right, \
+        walls_inner_top_left_out, walls_top_mid_in, lava_fountains_mid, lava_fountains_bottom, lava_fountains_top, \
+        empties
+    player = None
+    chests = []
+    enemies = []
+    doors = []
+    walls_inner_top_right = []
+    walls_inner_top_left = []
+    walls_side_mid_left = []
+    walls_side_mid_right = []
+    walls_corner_left = []
+    walls_corner_right = []
+    walls_top_left = []
+    walls_top_right = []
+    walls_top_mid = []
+    walls_side_front_left = []
+    walls_side_front_right = []
+    walls_side_top_left = []
+    walls_side_top_right = []
+    walls_inner_top_left_out = []
+    walls_top_mid_in = []
+    lava_fountains_mid = []
+    lava_fountains_bottom = []
+    lava_fountains_top = []
+    empties = []
+
+
+get_lists()
+
+
 # группы спрайтов
-all_sprites = pygame.sprite.Group()
-tiles_group = pygame.sprite.Group()
-player_group = pygame.sprite.Group()
-enemy_group = pygame.sprite.Group()
-chest_group = pygame.sprite.Group()
-door_group = pygame.sprite.Group()
-wall_front_left_group = pygame.sprite.Group()
-wall_front_right_group = pygame.sprite.Group()
-wall_front_mid_group = pygame.sprite.Group()
-wall_inner_top_right_group = pygame.sprite.Group()
-wall_inner_top_left_group = pygame.sprite.Group()
-wall_side_mid_left_group = pygame.sprite.Group()
-wall_side_mid_right_group = pygame.sprite.Group()
-wall_corner_left_group = pygame.sprite.Group()
-wall_corner_right_group = pygame.sprite.Group()
-wall_top_left_group = pygame.sprite.Group()
-wall_top_right_group = pygame.sprite.Group()
-wall_top_mid_group = pygame.sprite.Group()
-wall_inner_top_left_out_group = pygame.sprite.Group()
-wall_top_mid_in_group = pygame.sprite.Group()
-wall_side_front_left_group = pygame.sprite.Group()
-wall_side_front_right_group = pygame.sprite.Group()
-wall_side_top_left_group = pygame.sprite.Group()
-wall_side_top_right_group = pygame.sprite.Group()
-lava_fountain_group = pygame.sprite.Group()
-lava_fountain_bottom_group = pygame.sprite.Group()
-lava_fountain_top_group = pygame.sprite.Group()
-weapon_group = pygame.sprite.Group()
-empty_group = pygame.sprite.Group()
-floor_group = pygame.sprite.Group()
-shadow_checker_group = pygame.sprite.Group()
-border_floor_top_group = pygame.sprite.Group()
-border_floor_right_group = pygame.sprite.Group()
-border_floor_bottom_group = pygame.sprite.Group()
-border_floor_left_group = pygame.sprite.Group()
+def get_group_list():
+    global all_sprites, tiles_group, player_group, enemy_group, chest_group, door_group, wall_front_left_group, \
+           wall_front_right_group, wall_front_mid_group, wall_inner_top_right_group, wall_inner_top_left_group, \
+           wall_side_mid_left_group, wall_side_mid_right_group, wall_corner_left_group, wall_corner_right_group, \
+           wall_top_left_group, wall_top_right_group, wall_top_mid_group, wall_inner_top_left_out_group, \
+           wall_top_mid_in_group, wall_side_front_left_group, wall_side_front_right_group, wall_side_top_left_group, \
+           wall_side_top_right_group, lava_fountain_group, lava_fountain_bottom_group, lava_fountain_top_group, \
+           weapon_group, empty_group, floor_group, shadow_checker_group, border_floor_top_group, \
+           border_floor_right_group, border_floor_bottom_group, border_floor_left_group
+    all_sprites = pygame.sprite.Group()
+    tiles_group = pygame.sprite.Group()
+    player_group = pygame.sprite.Group()
+    enemy_group = pygame.sprite.Group()
+    chest_group = pygame.sprite.Group()
+    door_group = pygame.sprite.Group()
+    wall_front_left_group = pygame.sprite.Group()
+    wall_front_right_group = pygame.sprite.Group()
+    wall_front_mid_group = pygame.sprite.Group()
+    wall_inner_top_right_group = pygame.sprite.Group()
+    wall_inner_top_left_group = pygame.sprite.Group()
+    wall_side_mid_left_group = pygame.sprite.Group()
+    wall_side_mid_right_group = pygame.sprite.Group()
+    wall_corner_left_group = pygame.sprite.Group()
+    wall_corner_right_group = pygame.sprite.Group()
+    wall_top_left_group = pygame.sprite.Group()
+    wall_top_right_group = pygame.sprite.Group()
+    wall_top_mid_group = pygame.sprite.Group()
+    wall_inner_top_left_out_group = pygame.sprite.Group()
+    wall_top_mid_in_group = pygame.sprite.Group()
+    wall_side_front_left_group = pygame.sprite.Group()
+    wall_side_front_right_group = pygame.sprite.Group()
+    wall_side_top_left_group = pygame.sprite.Group()
+    wall_side_top_right_group = pygame.sprite.Group()
+    lava_fountain_group = pygame.sprite.Group()
+    lava_fountain_bottom_group = pygame.sprite.Group()
+    lava_fountain_top_group = pygame.sprite.Group()
+    weapon_group = pygame.sprite.Group()
+    empty_group = pygame.sprite.Group()
+    floor_group = pygame.sprite.Group()
+    shadow_checker_group = pygame.sprite.Group()
+    border_floor_top_group = pygame.sprite.Group()
+    border_floor_right_group = pygame.sprite.Group()
+    border_floor_bottom_group = pygame.sprite.Group()
+    border_floor_left_group = pygame.sprite.Group()
+
+
+get_group_list()
 
 
 def generate_level(level):
@@ -377,10 +401,11 @@ class Chest(pygame.sprite.Sprite):
         self.notop = True
 
     def update(self):
-        if (abs(player.rect.x - self.rect.x) <= 2 or abs(player.rect.y - self.rect.y) <= 2) and self.notop:
+        global score
+        if (abs(player.rect.x - self.rect.x) <= 1 and abs(player.rect.y - self.rect.y) <= 1) and self.notop:
             self.notop = False
             self.image = chest_open_image
-            player.score += 100
+            score += 100
             player.get_health(100)
             pygame.mixer.music.load('Assets/Sounds/Health_player.mp3')
             pygame.mixer.music.play()
@@ -617,33 +642,31 @@ class Enemy(pygame.sprite.Sprite):
             tile_width * pos_x, tile_height * pos_y - 13)
 
     def taking_damage(self):
-        global defeat_enemy
+        global defeat_enemy, score
         self.lives -= 1
         if self.lives == 0:
             print('dead')
             defeat_enemy += 1
-            player.score += 50
+            score += 50
             self.image = floor_textures[3]
+            self.remove(enemy_group)
+            # self.image = enemy_image
 
     def update(self):
-        # if self.lives != 0:
-        #     if abs(player.rect.x - self.rect.x) <= 5:
+        # if self.lives <= 0:
+        #     if abs(player.rect.x - self.rect.x) <= 1:
         #         tmp = 1
         #         if player.rect.x - self.rect.x < 0:
         #             tmp = -1
-        #         self.rect.x += tmp
-        #         #pygame.display.flip()
-        #         # time.sleep(0.03)
-        #         #pygame.time.wait(30)
-        #     elif abs(player.rect.y - self.rect.y) <= 5:
+        #         self.rect.x += tmp * abs(player.rect.x - self.rect.x)
+        #     elif abs(player.rect.y - self.rect.y) <= 1:
         #         tmp = 1
         #         if player.rect.y - self.rect.y < 0:
         #             tmp = -1
-        #         self.rect.y += tmp
-        #         stat(player.score)
-        #         pygame.display.flip()
-        #         # time.sleep(0.03)
-        #         pygame.time.wait(30)
+        #         self.rect.y += tmp * abs(player.rect.y - self.rect.y)
+        #     player.get_damage(5)
+        #     pygame.mixer.music.load('Assets/Sounds/Damage_player.mp3')
+        #     pygame.mixer.music.play()
         pass
 
 
@@ -680,7 +703,6 @@ class Player(pygame.sprite.Sprite):
             tile_width * pos_x, tile_height * pos_y - 20
         )
         self.healt_init()
-        self.score = 0
 
     def healt_init(self):
         self.current_health = 500
@@ -689,6 +711,18 @@ class Player(pygame.sprite.Sprite):
         self.health_bar_length = 400
         self.health_ratio = self.max_health / self.health_bar_length
         self.health_change_speed = 10
+
+    def hit_check(self):
+        if pygame.sprite.spritecollideany(self, enemy_group):
+            for i in range(len(enemies)):
+                if pygame.sprite.collide_mask(self, enemies[i]):
+                    player.get_damage(50)
+                    pygame.mixer.music.load('Assets/Sounds/Damage_player.mp3')
+                    pygame.mixer.music.play()
+                    break
+            return True
+        else:
+            return False
 
     def get_damage(self, amount):
         if self.target_health > 0:
@@ -736,10 +770,10 @@ class Player(pygame.sprite.Sprite):
                     self.rect.x -= move_speed
                     weapon.rect.x -= move_speed
                     shadow.rect.x -= move_speed
-                    for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
+                    for i in [all_sprites, shadow_checker_group, weapon_group, door_group, player_group]:
                         i.draw(screen)
                         i.update()
-                    stat(player.score)
+                    stat(score)
                     pygame.display.flip()
                     pygame.time.wait(20)
 
@@ -750,10 +784,10 @@ class Player(pygame.sprite.Sprite):
                     self.rect.x += move_speed
                     weapon.rect.x += move_speed
                     shadow.rect.x += move_speed
-                    for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
+                    for i in [all_sprites, shadow_checker_group, weapon_group, door_group, player_group]:
                         i.draw(screen)
                         i.update()
-                    stat(player.score)
+                    stat(score)
                     pygame.display.flip()
                     pygame.time.wait(20)
 
@@ -764,10 +798,10 @@ class Player(pygame.sprite.Sprite):
                     self.rect.y -= move_speed
                     weapon.rect.y -= move_speed
                     shadow.rect.y -= move_speed
-                    for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
+                    for i in [all_sprites, shadow_checker_group, weapon_group, door_group, player_group]:
                         i.draw(screen)
                         i.update()
-                    stat(player.score)
+                    stat(score)
                     pygame.display.flip()
                     pygame.time.wait(20)
 
@@ -778,10 +812,10 @@ class Player(pygame.sprite.Sprite):
                     self.rect.y += move_speed
                     weapon.rect.y += move_speed
                     shadow.rect.y += move_speed
-                    for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
+                    for i in [all_sprites, shadow_checker_group, weapon_group, door_group, player_group]:
                         i.draw(screen)
                         i.update()
-                    stat(player.score)
+                    stat(score)
                     pygame.display.flip()
                     pygame.time.wait(20)
 
@@ -843,7 +877,7 @@ class Player(pygame.sprite.Sprite):
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
-                    stat(player.score)
+                    stat(score)
                     pygame.display.flip()
                     pygame.time.wait(20)
 
@@ -861,7 +895,7 @@ class Player(pygame.sprite.Sprite):
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
-                    stat(player.score)
+                    stat(score)
                     pygame.display.flip()
                     pygame.time.wait(20)
 
@@ -878,7 +912,7 @@ class Player(pygame.sprite.Sprite):
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
-                    stat(player.score)
+                    stat(score)
                     pygame.display.flip()
                     pygame.time.wait(20)
 
@@ -895,7 +929,7 @@ class Player(pygame.sprite.Sprite):
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
-                    stat(player.score)
+                    stat(score)
                     pygame.display.flip()
                     pygame.time.wait(20)
 
@@ -955,7 +989,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             door_group.update()
-            stat(player.score)
+            stat(score)
             pygame.display.flip()
             pygame.time.wait(70)
 
@@ -1254,8 +1288,8 @@ def start_screen():
 
 def end_screen():
     intro_text = ["Игра Оконченна", "",
-                  f"Ваш счёт: {player.score}",
-                  f"Лучший счёт: {get_best_score(player.score)}"]
+                  f"Ваш счёт: {score}",
+                  f"Лучший счёт: {get_best_score(score)}"]
     fon = pygame.transform.scale(load_image('fon.jpg'), (width, height))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 40)
@@ -1281,26 +1315,29 @@ def end_screen():
 
 
 def stat(health):
+    global width
     font = pygame.font.Font(None, 25)
-    text = font.render("Score:" + str(player.score), True, pygame.Color('white'))
-    screen.blit(text, (630, 20))
-    text = font.render("Best score:" + str(get_best_score(player.score)), True, pygame.Color('white'))
-    screen.blit(text, (630, 40))
+    text = font.render("Score:" + str(score), True, pygame.Color('white'))
+    screen.blit(text, (width - 150, 20))
+    text = font.render("Best score:" + str(get_best_score(score)), True, pygame.Color('white'))
+    screen.blit(text, (width - 150, 40))
 
 
 def load_and_gen_level(name):
-    global level, player, level_x, level_y, weapon, shadow, size, screen,\
+    global level, player, level_x, level_y, weapon, shadow, size, screen, \
         running, flagL, flagR, flagU, flagD, see_L, see_U, see_D, width, height, see_R
-    screen.fill((0, 0, 0))
+    get_group_list()
+    get_lists()
     level = load_level(name)
     player, level_x, level_y, weapon, shadow = generate_level(level)
-    size = width, height = level_x * tile_width, level_y * tile_height
+    size = width, height = 30 + level_x * tile_width, 30 + level_y * tile_height
     screen = pygame.display.set_mode(size)
+    screen.fill((0, 0, 0))
     running = True
     flagR = flagL = flagD = flagU = False
     see_R = True
     see_L = see_U = see_D = False
-    get_best_score(player.score)
+    get_best_score(score)
 
 
 if __name__ == '__main__':
@@ -1315,15 +1352,19 @@ if __name__ == '__main__':
     start_screen()
     pygame.mixer.music.load('Assets/Sounds/music_on_the_background.mp3')
     pygame.mixer.music.play(-1)
-    get_best_score(player.score)
+    get_best_score(score)
     while running:
         if len(enemies) == defeat_enemy and level_number == 3:
-            get_best_score(player.score)
+            get_best_score(score)
             end_screen()
             running = False
         elif len(enemies) == defeat_enemy:
+            defeat_enemy = 0
             level_number += 1
             load_and_gen_level(f'map{level_number}.txt')
+        if player.current_health <= 0:
+            end_screen()
+            running = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -1381,10 +1422,9 @@ if __name__ == '__main__':
             player.can_player_move1(pygame.K_s)
         else:
             player.stay_on_place()
-        # for i in enemies:
-        #     i.update()
+        player.hit_check()
         screen.fill((0, 0, 0))
-        draw_sprites = [all_sprites, floor_group, player_group, enemy_group, chest_group, door_group,
+        draw_sprites = [all_sprites, floor_group, door_group, enemy_group, chest_group, player_group,
                         wall_inner_top_right_group, wall_inner_top_left_group, wall_side_mid_left_group,
                         wall_side_mid_right_group, wall_corner_left_group, wall_corner_right_group, wall_top_left_group,
                         wall_top_right_group, wall_top_mid_group, wall_inner_top_left_out_group, wall_top_mid_in_group,
@@ -1395,7 +1435,7 @@ if __name__ == '__main__':
                         border_floor_bottom_group, border_floor_left_group]
         for i in draw_sprites:
             i.draw(screen)
-        update_sprites = [all_sprites, floor_group, player_group, door_group, chest_group, enemy_group,
+        update_sprites = [all_sprites, floor_group, door_group, player_group, chest_group, enemy_group,
                           wall_inner_top_right_group, wall_inner_top_left_group, wall_side_mid_left_group,
                           wall_side_mid_right_group, wall_corner_left_group, wall_corner_right_group,
                           wall_top_left_group, wall_top_right_group, wall_top_mid_group, wall_inner_top_left_out_group,
