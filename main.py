@@ -130,11 +130,11 @@ door_open_image = load_image('doors_open.png')
 lava_fountain_top_image = load_image('wall_fountain_top.png')
 sword = load_image('weapon_anime_sword.png')
 empty_image = load_image('empty.png')
-shadow_checker_image = load_image('border_checker3.png')
-border_floor_top_image = load_image('border_floor_t2.png')
-border_floor_right_image = load_image('border_floor_r.png')
-border_floor_bottom_image = load_image('border_floor_b2.png')
-border_floor_left_image = load_image('border_floor_l.png')
+shadow_checker_image = load_image('border_checker5.png')
+border_floor_top_image = load_image('border_floor_t3.png')
+border_floor_right_image = load_image('border_floor_r3.png')
+border_floor_bottom_image = load_image('border_floor_b3.png')
+border_floor_left_image = load_image('border_floor_l3.png')
 
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
@@ -1249,7 +1249,7 @@ if __name__ == '__main__':
     pygame.display.set_caption('Deep Dark Dungeon (DDD)')
     generate_dungeon('map.txt', 70, 40, 110, 50, 60)
     # level = load_level('example_map2.txt')
-    level = load_level('example_map2.txt')
+    level = load_level('map1.txt')
     player, level_x, level_y, weapon, shadow = generate_level(level)
     size = width, height = level_x * tile_width, level_y * tile_height
     screen = pygame.display.set_mode(size)
@@ -1261,8 +1261,8 @@ if __name__ == '__main__':
     print(enemies)
     clock = pygame.time.Clock()
     start_screen()
-    pygame.mixer.music.load('Assets/Sounds/music_on_the_background.mp3')
-    pygame.mixer.music.play(-1)
+    #pygame.mixer.music.load('Assets/Sounds/music_on_the_background.mp3')
+    #pygame.mixer.music.play(-1)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
