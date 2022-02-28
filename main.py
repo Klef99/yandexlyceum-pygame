@@ -6,6 +6,8 @@ import pygame
 from procgen import generate_dungeon
 from random import randint
 
+defeat_enemy = 0
+
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('Assets/frames/', name)
@@ -28,6 +30,16 @@ def load_level(filename):
 
     # дополняем каждую строку пустыми клетками ('.')
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
+
+
+def get_best_score(score):
+    with open('score.txt') as file:
+        best_score = int(file.readlines()[-1])
+    if best_score <= score:
+        best_score = score
+        with open('score.txt', 'w') as file:
+            file.write(str(best_score))
+    return best_score
 
 
 floor_textures = {
@@ -123,18 +135,20 @@ lava_fountains_bottom = []
 lava_fountains_top = []
 empties = []
 
+
 enemy_image = load_image('chort_idle_anim_f0.png')
 chest_image = load_image('chest_empty_open_anim_f0.png')
+chest_open_image = load_image('chest_full_open_anim_f2.png')
 door_image = load_image('doors_all3.png')
 door_open_image = load_image('doors_open.png')
 lava_fountain_top_image = load_image('wall_fountain_top.png')
 sword = load_image('weapon_anime_sword.png')
 empty_image = load_image('empty.png')
-shadow_checker_image = load_image('border_checker5.png')
-border_floor_top_image = load_image('border_floor_t3.png')
-border_floor_right_image = load_image('border_floor_r3.png')
-border_floor_bottom_image = load_image('border_floor_b3.png')
-border_floor_left_image = load_image('border_floor_l3.png')
+shadow_checker_image = load_image('border_checker4.png')
+border_floor_top_image = load_image('border_floor_t2.png')
+border_floor_right_image = load_image('border_floor_r2.png')
+border_floor_bottom_image = load_image('border_floor_b2.png')
+border_floor_left_image = load_image('border_floor_l2.png')
 
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
@@ -189,9 +203,6 @@ def generate_level(level):
                 Border_floor_bottom(x, y)
             elif level[y][x] == 'R':
                 Wall_front_right(x, y)
-                Border_floor_bottom(x, y)
-            elif level[y][x] == '$':
-                Wall_front_mid(x, y)
                 Border_floor_bottom(x, y)
             elif level[y][x] == '+':
                 Floor(x, y)
@@ -363,6 +374,13 @@ class Chest(pygame.sprite.Sprite):
         self.image = chest_image
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y - 5)
+        self.notop = True
+
+    def update(self):
+        if (abs(player.rect.x - self.rect.x) <= 2 or abs(player.rect.y - self.rect.y) <= 2) and self.notop:
+            self.notop = False
+            self.image = chest_open_image
+            player.score += 100
 
 
 class Wall_side_top_left(pygame.sprite.Sprite):
@@ -525,7 +543,7 @@ class Border_floor_top(pygame.sprite.Sprite):
         self.image = border_floor_top_image
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y + 12)
+            tile_width * pos_x, tile_height * pos_y + 13)
 
 
 class Border_floor_right(pygame.sprite.Sprite):
@@ -547,7 +565,7 @@ class Border_floor_bottom(pygame.sprite.Sprite):
         self.image = border_floor_bottom_image
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y + 5)
+            tile_width * pos_x, tile_height * pos_y + 7)
 
 
 class Border_floor_left(pygame.sprite.Sprite):
@@ -558,7 +576,7 @@ class Border_floor_left(pygame.sprite.Sprite):
         self.image = border_floor_left_image
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
+            tile_width * pos_x + 3, tile_height * pos_y)
 
 
 class Door(pygame.sprite.Sprite):
@@ -582,7 +600,7 @@ class Shadow_checker(pygame.sprite.Sprite):
         self.image = shadow_checker_image
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x - 1, tile_height * pos_y + 9)
+            tile_width * pos_x - 1, tile_height * pos_y + 2)
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -596,18 +614,34 @@ class Enemy(pygame.sprite.Sprite):
             tile_width * pos_x, tile_height * pos_y - 13)
 
     def taking_damage(self):
+        global defeat_enemy
         self.lives -= 1
         if self.lives == 0:
             print('dead')
+            defeat_enemy += 1
             player.score += 50
             self.image = floor_textures[3]
 
-    def ai(self):
-        if self.pos_x - player.pos_x == 3:
-            self.rect.x += 1
-        enemy_group.draw(screen)
-        enemy_group.update()
-
+    def update(self):
+        # if self.lives != 0:
+        #     if abs(player.rect.x - self.rect.x) <= 5:
+        #         tmp = 1
+        #         if player.rect.x - self.rect.x < 0:
+        #             tmp = -1
+        #         self.rect.x += tmp
+        #         #pygame.display.flip()
+        #         # time.sleep(0.03)
+        #         #pygame.time.wait(30)
+        #     elif abs(player.rect.y - self.rect.y) <= 5:
+        #         tmp = 1
+        #         if player.rect.y - self.rect.y < 0:
+        #             tmp = -1
+        #         self.rect.y += tmp
+        #         stat(player.score)
+        #         pygame.display.flip()
+        #         # time.sleep(0.03)
+        #         pygame.time.wait(30)
+        pass
 
 
 class Weapon(pygame.sprite.Sprite):
@@ -644,9 +678,6 @@ class Player(pygame.sprite.Sprite):
         )
         self.healt_init()
         self.score = 0
-
-
-
 
     def healt_init(self):
         self.current_health = 500
@@ -694,65 +725,62 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(screen, (255, 255, 255), (5, 10, self.health_bar_length, 15), 4)
 
     def can_player_move1(self, key):
+        move_speed = 2
         if key == pygame.K_a:
             if not self.checker_wall_for_left():
                 for i in range(1, 5):
                     self.image = player_anims['left'][i]
-                    self.rect.x -= 1
-                    weapon.rect.x -= 1
-                    shadow.rect.x -= 1
+                    self.rect.x -= move_speed
+                    weapon.rect.x -= move_speed
+                    shadow.rect.x -= move_speed
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
                     stat(player.score)
                     pygame.display.flip()
-                    # time.sleep(0.03)
-                    pygame.time.wait(30)
+                    pygame.time.wait(20)
 
         elif key == pygame.K_d:
             if not self.checker_wall_for_right():
                 for i in range(1, 5):
                     self.image = player_anims['right'][i]
-                    self.rect.x += 1
-                    weapon.rect.x += 1
-                    shadow.rect.x += 1
+                    self.rect.x += move_speed
+                    weapon.rect.x += move_speed
+                    shadow.rect.x += move_speed
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
                     stat(player.score)
                     pygame.display.flip()
-                    # time.sleep(0.03)
-                    pygame.time.wait(30)
+                    pygame.time.wait(20)
 
         elif key == pygame.K_w:
             if not self.checker_wall_for_top():
                 for i in range(1, 5):
                     self.image = player_anims['up'][i]
-                    self.rect.y -= 1
-                    weapon.rect.y -= 1
-                    shadow.rect.y -= 1
+                    self.rect.y -= move_speed
+                    weapon.rect.y -= move_speed
+                    shadow.rect.y -= move_speed
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
                     stat(player.score)
                     pygame.display.flip()
-                    # time.sleep(0.03)
-                    pygame.time.wait(30)
+                    pygame.time.wait(20)
 
         elif key == pygame.K_s:
             if not self.checker_wall_for_bottom():
                 for i in range(1, 5):
                     self.image = player_anims['down'][i]
-                    self.rect.y += 1
-                    weapon.rect.y += 1
-                    shadow.rect.y += 1
+                    self.rect.y += move_speed
+                    weapon.rect.y += move_speed
+                    shadow.rect.y += move_speed
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
                     stat(player.score)
                     pygame.display.flip()
-                    # time.sleep(0.03)
-                    pygame.time.wait(30)
+                    pygame.time.wait(20)
 
     def checker_wall_for_left(self):
         global flagD, flagU, flagL, flagR
@@ -786,6 +814,7 @@ class Player(pygame.sprite.Sprite):
     def checker_wall_for_bottom(self):
         global flagD, flagU, flagL, flagR
         if pygame.sprite.spritecollideany(shadow, border_floor_bottom_group):
+            print('bottom')
             flagD = False
             return True
         elif pygame.sprite.spritecollideany(shadow, door_group):
@@ -797,78 +826,75 @@ class Player(pygame.sprite.Sprite):
             return False
 
     def can_player_move2(self, key1, key2):
+        move_speed = 2
         if (key1 == pygame.K_d and key2 == pygame.K_w) or (key1 == pygame.K_w and key2 == pygame.K_d):
             if not self.checker_wall_for_up_right():
                 for i in range(1, 5):
                     self.image = player_anims['up_right'][i]
-                    self.rect.y -= 1
-                    self.rect.x += 1
-                    weapon.rect.y -= 1
-                    weapon.rect.x += 1
-                    shadow.rect.y -= 1
-                    shadow.rect.x += 1
+                    self.rect.y -= move_speed
+                    self.rect.x += move_speed
+                    weapon.rect.y -= move_speed
+                    weapon.rect.x += move_speed
+                    shadow.rect.y -= move_speed
+                    shadow.rect.x += move_speed
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
                     stat(player.score)
                     pygame.display.flip()
-                    # time.sleep(0.05)
-                    pygame.time.wait(50)
+                    pygame.time.wait(20)
 
         elif (key1 == pygame.K_d and key2 == pygame.K_s) or (key1 == pygame.K_s and key2 == pygame.K_d):
             if not self.checker_wall_for_right_down():
                 for i in range(1, 5):
                     self.image = player_anims['right_down'][i]
-                    self.rect.y += 1
-                    self.rect.x += 1
-                    weapon.rect.y += 1
-                    weapon.rect.x += 1
-                    shadow.rect.y += 1
-                    shadow.rect.x += 1
+                    self.rect.y += move_speed
+                    self.rect.x += move_speed
+                    weapon.rect.y += move_speed
+                    weapon.rect.x += move_speed
+                    shadow.rect.y += move_speed
+                    shadow.rect.x += move_speed
                     all_sprites.draw(screen)
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
                     stat(player.score)
                     pygame.display.flip()
-                    # time.sleep(0.05)
-                    pygame.time.wait(50)
+                    pygame.time.wait(20)
 
         elif (key1 == pygame.K_a and key2 == pygame.K_s) or (key1 == pygame.K_s and key2 == pygame.K_a):
             if not self.checker_wall_for_left_down():
                 for i in range(1, 5):
                     self.image = player_anims['left_down'][i]
-                    self.rect.y += 1
-                    self.rect.x -= 1
-                    weapon.rect.y += 1
-                    weapon.rect.x -= 1
-                    shadow.rect.y += 1
-                    shadow.rect.x -= 1
+                    self.rect.y += move_speed
+                    self.rect.x -= move_speed
+                    weapon.rect.y += move_speed
+                    weapon.rect.x -= move_speed
+                    shadow.rect.y += move_speed
+                    shadow.rect.x -= move_speed
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
                     stat(player.score)
                     pygame.display.flip()
-                    # time.sleep(0.05)
-                    pygame.time.wait(50)
+                    pygame.time.wait(20)
 
         elif (key1 == pygame.K_a and key2 == pygame.K_w) or (key1 == pygame.K_w and key2 == pygame.K_a):
             if not self.checker_wall_for_up_left():
                 for i in range(1, 5):
                     self.image = player_anims['up_left'][i]
-                    self.rect.y -= 1
-                    self.rect.x -= 1
-                    weapon.rect.y -= 1
-                    weapon.rect.x -= 1
-                    shadow.rect.y -= 1
-                    shadow.rect.x -= 1
+                    self.rect.y -= move_speed
+                    self.rect.x -= move_speed
+                    weapon.rect.y -= move_speed
+                    weapon.rect.x -= move_speed
+                    shadow.rect.y -= move_speed
+                    shadow.rect.x -= move_speed
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
                     stat(player.score)
                     pygame.display.flip()
-                    # time.sleep(0.05)
-                    pygame.time.wait(50)
+                    pygame.time.wait(20)
 
     def checker_wall_for_up_right(self):
         global flagR, flagL, flagU, flagD
@@ -917,16 +943,17 @@ class Player(pygame.sprite.Sprite):
     def stay_on_place(self):
         for i in range(1, 5):
             self.image = player_anims['stay_on_place'][i]
-            # all_sprites.draw(screen)
-            # weapon_group.draw(screen)
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
-            # all_sprites.update()
-            # weapon_group.update()
+            all_sprites.update()
+            weapon_group.update()
             player_group.update()
+            door_group.update()
             stat(player.score)
             pygame.display.flip()
-            # time.sleep(0.07)
             pygame.time.wait(70)
 
     def hit(self):
@@ -943,8 +970,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -958,8 +984,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -973,8 +998,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -988,8 +1012,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1011,8 +1034,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1026,8 +1048,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1041,8 +1062,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1056,8 +1076,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1079,8 +1098,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1094,8 +1112,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1109,8 +1126,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1124,8 +1140,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1147,8 +1162,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1162,8 +1176,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1177,8 +1190,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1192,8 +1204,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            pygame.time.wait(10)
             if weapon.hit_check():
                 hit += 1
 
@@ -1238,10 +1249,40 @@ def start_screen():
         clock.tick(fps)
 
 
+def end_screen():
+    intro_text = ["Игра Оконченна", "",
+                  f"Ваш счёт: {player.score}",
+                  f"Лучший счёт: {get_best_score(player.score)}"]
+    fon = pygame.transform.scale(load_image('fon.jpg'), (width, height))
+    screen.blit(fon, (0, 0))
+    font = pygame.font.Font(None, 40)
+    text_coord = 50
+    for line in intro_text:
+        string_rendered = font.render(line, True, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect.top = text_coord
+        intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN or \
+                    event.type == pygame.MOUSEBUTTONDOWN:
+                return  # начинаем игру
+        pygame.display.flip()
+        clock.tick(fps)
+
+
 def stat(health):
-    font = pygame.font.Font(None, 30)
-    text = font.render("Score:"+str(health), True, pygame.Color('white'))
-    screen.blit(text, (650, 30))
+    font = pygame.font.Font(None, 25)
+    text = font.render("Score:" + str(player.score), True, pygame.Color('white'))
+    screen.blit(text, (630, 20))
+    text = font.render("Best score:" + str(get_best_score(player.score)), True, pygame.Color('white'))
+    screen.blit(text, (630, 40))
 
 
 if __name__ == '__main__':
@@ -1249,7 +1290,7 @@ if __name__ == '__main__':
     pygame.display.set_caption('Deep Dark Dungeon (DDD)')
     generate_dungeon('map.txt', 70, 40, 110, 50, 60)
     # level = load_level('example_map2.txt')
-    level = load_level('map1.txt')
+    level = load_level('first_map.txt')
     player, level_x, level_y, weapon, shadow = generate_level(level)
     size = width, height = level_x * tile_width, level_y * tile_height
     screen = pygame.display.set_mode(size)
@@ -1257,13 +1298,18 @@ if __name__ == '__main__':
     flagR = flagL = flagD = flagU = False
     see_R = True
     see_L = see_U = see_D = False
-    fps = 60
+    fps = 120
     print(enemies)
     clock = pygame.time.Clock()
     start_screen()
-    #pygame.mixer.music.load('Assets/Sounds/music_on_the_background.mp3')
-    #pygame.mixer.music.play(-1)
+    pygame.mixer.music.load('Assets/Sounds/music_on_the_background.mp3')
+    pygame.mixer.music.play(-1)
+    get_best_score(player.score)
     while running:
+        if len(enemies) == defeat_enemy:
+            get_best_score(player.score)
+            end_screen()
+            running = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -1321,6 +1367,8 @@ if __name__ == '__main__':
             player.can_player_move1(pygame.K_s)
         else:
             player.stay_on_place()
+        # for i in enemies:
+        #     i.update()
         screen.fill((0, 0, 0))
         draw_sprites = [all_sprites, floor_group, player_group, enemy_group, chest_group, door_group,
                         wall_inner_top_right_group, wall_inner_top_left_group, wall_side_mid_left_group,
