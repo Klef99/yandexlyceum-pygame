@@ -135,6 +135,7 @@ lava_fountains_bottom = []
 lava_fountains_top = []
 empties = []
 
+
 enemy_image = load_image('chort_idle_anim_f0.png')
 chest_image = load_image('chest_empty_open_anim_f0.png')
 chest_open_image = load_image('chest_full_open_anim_f2.png')
@@ -143,11 +144,11 @@ door_open_image = load_image('doors_open.png')
 lava_fountain_top_image = load_image('wall_fountain_top.png')
 sword = load_image('weapon_anime_sword.png')
 empty_image = load_image('empty.png')
-shadow_checker_image = load_image('border_checker3.png')
+shadow_checker_image = load_image('border_checker4.png')
 border_floor_top_image = load_image('border_floor_t2.png')
-border_floor_right_image = load_image('border_floor_r.png')
+border_floor_right_image = load_image('border_floor_r2.png')
 border_floor_bottom_image = load_image('border_floor_b2.png')
-border_floor_left_image = load_image('border_floor_l.png')
+border_floor_left_image = load_image('border_floor_l2.png')
 
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
@@ -202,9 +203,6 @@ def generate_level(level):
                 Border_floor_bottom(x, y)
             elif level[y][x] == 'R':
                 Wall_front_right(x, y)
-                Border_floor_bottom(x, y)
-            elif level[y][x] == '$':
-                Wall_front_mid(x, y)
                 Border_floor_bottom(x, y)
             elif level[y][x] == '+':
                 Floor(x, y)
@@ -545,7 +543,7 @@ class Border_floor_top(pygame.sprite.Sprite):
         self.image = border_floor_top_image
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y + 12)
+            tile_width * pos_x, tile_height * pos_y + 13)
 
 
 class Border_floor_right(pygame.sprite.Sprite):
@@ -567,7 +565,7 @@ class Border_floor_bottom(pygame.sprite.Sprite):
         self.image = border_floor_bottom_image
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y + 5)
+            tile_width * pos_x, tile_height * pos_y + 7)
 
 
 class Border_floor_left(pygame.sprite.Sprite):
@@ -578,7 +576,7 @@ class Border_floor_left(pygame.sprite.Sprite):
         self.image = border_floor_left_image
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
+            tile_width * pos_x + 3, tile_height * pos_y)
 
 
 class Door(pygame.sprite.Sprite):
@@ -602,7 +600,7 @@ class Shadow_checker(pygame.sprite.Sprite):
         self.image = shadow_checker_image
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x - 1, tile_height * pos_y + 9)
+            tile_width * pos_x - 1, tile_height * pos_y + 2)
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -820,6 +818,7 @@ class Player(pygame.sprite.Sprite):
     def checker_wall_for_bottom(self):
         global flagD, flagU, flagL, flagR
         if pygame.sprite.spritecollideany(shadow, border_floor_bottom_group):
+            print('bottom')
             flagD = False
             return True
         elif pygame.sprite.spritecollideany(shadow, door_group):
@@ -902,8 +901,7 @@ class Player(pygame.sprite.Sprite):
                         i.update()
                     stat(player.score)
                     pygame.display.flip()
-                    # time.sleep(0.05)
-                    pygame.time.wait(50)
+                    time.sleep(0.05)
 
     def checker_wall_for_up_right(self):
         global flagR, flagL, flagU, flagD
@@ -952,12 +950,12 @@ class Player(pygame.sprite.Sprite):
     def stay_on_place(self):
         for i in range(1, 5):
             self.image = player_anims['stay_on_place'][i]
-            # all_sprites.draw(screen)
-            # weapon_group.draw(screen)
+            all_sprites.draw(screen)
+            weapon_group.draw(screen)
             player_group.draw(screen)
 
-            # all_sprites.update()
-            # weapon_group.update()
+            all_sprites.update()
+            weapon_group.update()
             player_group.update()
             stat(player.score)
             pygame.display.flip()
@@ -978,6 +976,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
+            time.sleep(0.01)
             # time.sleep(0.05)
             pygame.time.wait(50)
             if weapon.hit_check():
@@ -993,8 +992,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1008,8 +1006,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1023,8 +1020,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1046,8 +1042,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1061,8 +1056,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1076,8 +1070,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1091,8 +1084,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1114,8 +1106,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1129,8 +1120,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1144,8 +1134,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1159,8 +1148,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1182,8 +1170,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1197,8 +1184,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1212,8 +1198,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1227,8 +1212,7 @@ class Player(pygame.sprite.Sprite):
             weapon_group.update()
             player_group.update()
             pygame.display.flip()
-            # time.sleep(0.05)
-            pygame.time.wait(50)
+            time.sleep(0.01)
             if weapon.hit_check():
                 hit += 1
 
@@ -1416,5 +1400,75 @@ if __name__ == '__main__':
                           border_floor_right_group, border_floor_bottom_group, border_floor_left_group]
         for i in update_sprites:
             i.update()
+
+        all_sprites.draw(screen)
+        floor_group.draw(screen)
+        player_group.draw(screen)
+        enemy_group.draw(screen)
+        chest_group.draw(screen)
+        wall_inner_top_right_group.draw(screen)
+        wall_inner_top_left_group.draw(screen)
+        wall_side_mid_left_group.draw(screen)
+        wall_side_mid_right_group.draw(screen)
+        wall_corner_left_group.draw(screen)
+        wall_corner_right_group.draw(screen)
+        wall_top_left_group.draw(screen)
+        wall_top_right_group.draw(screen)
+        wall_top_mid_group.draw(screen)
+        wall_inner_top_left_out_group.draw(screen)
+        wall_top_mid_in_group.draw(screen)
+        wall_side_front_left_group.draw(screen)
+        wall_side_front_right_group.draw(screen)
+        wall_side_top_left_group.draw(screen)
+        wall_side_top_right_group.draw(screen)
+        lava_fountain_group.draw(screen)
+        lava_fountain_bottom_group.draw(screen)
+        lava_fountain_top_group.draw(screen)
+        weapon_group.draw(screen)
+        wall_front_mid_group.draw(screen)
+        wall_front_right_group.draw(screen)
+        wall_front_left_group.draw(screen)
+        door_group.draw(screen)
+        shadow_checker_group.draw(screen)
+        border_floor_top_group.draw(screen)
+        border_floor_right_group.draw(screen)
+        border_floor_bottom_group.draw(screen)
+        border_floor_left_group.draw(screen)
+
+
+        all_sprites.update()
+        floor_group.update()
+        player_group.update()
+        chest_group.update()
+        enemy_group.update()
+        wall_inner_top_right_group.update()
+        wall_inner_top_left_group.update()
+        wall_side_mid_left_group.update()
+        wall_side_mid_right_group.update()
+        wall_corner_left_group.update()
+        wall_corner_right_group.update()
+        wall_top_left_group.update()
+        wall_top_right_group.update()
+        wall_top_mid_group.update()
+        wall_inner_top_left_out_group.update()
+        wall_top_mid_in_group.update()
+        wall_side_front_left_group.update()
+        wall_side_front_right_group.update()
+        wall_side_top_left_group.update()
+        wall_side_top_right_group.update()
+        lava_fountain_group.update()
+        lava_fountain_bottom_group.update()
+        lava_fountain_top_group.update()
+        weapon_group.update()
+        wall_front_left_group.update()
+        wall_front_mid_group.update()
+        wall_front_right_group.update()
+        door_group.update()
+        shadow_checker_group.update()
+        border_floor_top_group.update()
+        border_floor_right_group.update()
+        border_floor_bottom_group.update()
+        border_floor_left_group.update()
+
         pygame.display.flip()
     pygame.quit()
