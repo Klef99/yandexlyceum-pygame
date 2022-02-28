@@ -119,10 +119,10 @@ lava_fountain_top_image = load_image('wall_fountain_top.png')
 sword = load_image('weapon_anime_sword.png')
 empty_image = load_image('empty.png')
 shadow_checker_image = load_image('border_checker5.png')
-border_floor_top_image = load_image('border_floor_t2.png')
-border_floor_right_image = load_image('border_floor_r2.png')
-border_floor_bottom_image = load_image('border_floor_b2.png')
-border_floor_left_image = load_image('border_floor_l2.png')
+border_floor_top_image = load_image('border_floor_t3.png')
+border_floor_right_image = load_image('border_floor_r3.png')
+border_floor_bottom_image = load_image('border_floor_b3.png')
+border_floor_left_image = load_image('border_floor_l3.png')
 
 tile_width = tile_height = 16
 
@@ -1424,7 +1424,7 @@ if __name__ == '__main__':
             player.stay_on_place()
         player.hit_check()
         screen.fill((0, 0, 0))
-        draw_sprites = [all_sprites, floor_group, door_group, enemy_group, chest_group, player_group,
+        draw_sprites = [all_sprites, floor_group, player_group, enemy_group, chest_group, door_group,
                         wall_inner_top_right_group, wall_inner_top_left_group, wall_side_mid_left_group,
                         wall_side_mid_right_group, wall_corner_left_group, wall_corner_right_group, wall_top_left_group,
                         wall_top_right_group, wall_top_mid_group, wall_inner_top_left_out_group, wall_top_mid_in_group,
@@ -1435,7 +1435,7 @@ if __name__ == '__main__':
                         border_floor_bottom_group, border_floor_left_group]
         for i in draw_sprites:
             i.draw(screen)
-        update_sprites = [all_sprites, floor_group, door_group, player_group, chest_group, enemy_group,
+        update_sprites = [all_sprites, floor_group, player_group, door_group, chest_group, enemy_group,
                           wall_inner_top_right_group, wall_inner_top_left_group, wall_side_mid_left_group,
                           wall_side_mid_right_group, wall_corner_left_group, wall_corner_right_group,
                           wall_top_left_group, wall_top_right_group, wall_top_mid_group, wall_inner_top_left_out_group,
