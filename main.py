@@ -118,7 +118,7 @@ door_open_image = load_image('doors_open.png')
 lava_fountain_top_image = load_image('wall_fountain_top.png')
 sword = load_image('weapon_anime_sword.png')
 empty_image = load_image('empty.png')
-shadow_checker_image = load_image('border_checker3.png')
+shadow_checker_image = load_image('border_checker6.png')
 border_floor_top_image = load_image('border_floor_t3.png')
 border_floor_right_image = load_image('border_floor_r3.png')
 border_floor_bottom_image = load_image('border_floor_b3.png')
@@ -1001,10 +1001,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1015,10 +1017,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1029,10 +1033,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1043,10 +1049,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1065,10 +1073,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1079,10 +1089,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1093,10 +1105,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1107,10 +1121,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1129,10 +1145,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1143,10 +1161,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1157,10 +1177,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1171,10 +1193,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1193,10 +1217,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1207,10 +1233,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1221,10 +1249,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
@@ -1235,10 +1265,12 @@ class Player(pygame.sprite.Sprite):
             all_sprites.draw(screen)
             weapon_group.draw(screen)
             player_group.draw(screen)
+            door_group.draw(screen)
 
             all_sprites.update()
             weapon_group.update()
             player_group.update()
+            door_group.update()
             pygame.display.flip()
             pygame.time.wait(10)
             if weapon.hit_check():
