@@ -381,6 +381,9 @@ class Chest(pygame.sprite.Sprite):
             self.notop = False
             self.image = chest_open_image
             player.score += 100
+            player.get_health(100)
+            pygame.mixer.music.load('Assets/Sounds/Health_player.mp3')
+            pygame.mixer.music.play()
 
 
 class Wall_side_top_left(pygame.sprite.Sprite):
@@ -1288,6 +1291,7 @@ def stat(health):
 def load_and_gen_level(name):
     global level, player, level_x, level_y, weapon, shadow, size, screen,\
         running, flagL, flagR, flagU, flagD, see_L, see_U, see_D, width, height, see_R
+    screen.fill((0, 0, 0))
     level = load_level(name)
     player, level_x, level_y, weapon, shadow = generate_level(level)
     size = width, height = level_x * tile_width, level_y * tile_height
