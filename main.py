@@ -137,6 +137,7 @@ empties = []
 
 enemy_image = load_image('chort_idle_anim_f0.png')
 chest_image = load_image('chest_empty_open_anim_f0.png')
+chest_open_image = load_image('chest_full_open_anim_f2.png')
 door_image = load_image('doors_all3.png')
 door_open_image = load_image('doors_open.png')
 lava_fountain_top_image = load_image('wall_fountain_top.png')
@@ -375,6 +376,13 @@ class Chest(pygame.sprite.Sprite):
         self.image = chest_image
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y - 5)
+        self.notop = True
+
+    def update(self):
+        if (abs(player.rect.x - self.rect.x) <= 3 or abs(player.rect.y - self.rect.y) <= 3) and self.notop:
+            self.notop = False
+            self.image = chest_open_image
+            player.score += 100
 
 
 class Wall_side_top_left(pygame.sprite.Sprite):
@@ -617,22 +625,26 @@ class Enemy(pygame.sprite.Sprite):
             self.image = floor_textures[3]
 
     def update(self):
-        # if abs(self.pos_x - player.pos_x) <= 5:
-        #     tmp = 1
-        #     if player.pos_x - self.pos_x < 0:
-        #         tmp = -1
-        #     self.rect.x += tmp
-        #     stat(player.score)
-        #     pygame.display.flip()
-        #     # time.sleep(0.03)
-        #     pygame.time.wait(30)
-        # elif player.pos_y - self.pos_y <= 32:
-        #     tmp = 1
-        #     if player.pos_y - self.pos_y < 0:
-        #         tmp = -1
-        #     self.rect.y += tmp
-        #     pygame.time.wait(5)
+        # if self.lives != 0:
+        #     if abs(player.rect.x - self.rect.x) <= 5:
+        #         tmp = 1
+        #         if player.rect.x - self.rect.x < 0:
+        #             tmp = -1
+        #         self.rect.x += tmp
+        #         #pygame.display.flip()
+        #         # time.sleep(0.03)
+        #         #pygame.time.wait(30)
+        #     elif abs(player.rect.y - self.rect.y) <= 5:
+        #         tmp = 1
+        #         if player.rect.y - self.rect.y < 0:
+        #             tmp = -1
+        #         self.rect.y += tmp
+        #         stat(player.score)
+        #         pygame.display.flip()
+        #         # time.sleep(0.03)
+        #         pygame.time.wait(30)
         pass
+
 
 class Weapon(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
@@ -750,9 +762,9 @@ class Player(pygame.sprite.Sprite):
             if not self.checker_wall_for_top():
                 for i in range(1, 5):
                     self.image = player_anims['up'][i]
-                    self.rect.y -= move_speed
-                    weapon.rect.y -= move_speed
-                    shadow.rect.y -= move_speed
+                    self.rect.y -= 1
+                    weapon.rect.y -= 1
+                    shadow.rect.y -= 1
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
@@ -765,9 +777,9 @@ class Player(pygame.sprite.Sprite):
             if not self.checker_wall_for_bottom():
                 for i in range(1, 5):
                     self.image = player_anims['down'][i]
-                    self.rect.y += move_speed
-                    weapon.rect.y += move_speed
-                    shadow.rect.y += move_speed
+                    self.rect.y += 1
+                    weapon.rect.y += 1
+                    shadow.rect.y += 1
                     for i in [all_sprites, shadow_checker_group, weapon_group, player_group, door_group]:
                         i.draw(screen)
                         i.update()
@@ -1290,7 +1302,7 @@ def end_screen():
 
 
 def stat(health):
-    font = pygame.font.Font(None, 30)
+    font = pygame.font.Font(None, 25)
     text = font.render("Score:" + str(player.score), True, pygame.Color('white'))
     screen.blit(text, (630, 20))
     text = font.render("Best score:" + str(get_best_score(player.score)), True, pygame.Color('white'))
